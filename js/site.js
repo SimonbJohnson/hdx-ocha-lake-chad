@@ -36,10 +36,13 @@ function parseDates(tags,data){
     return data;
 }
 
-function generateMap(incidents,refugees,accessible){
+function generateMap(incidents,refugees,accessible,adm1,adm2,countries){
     console.log(incidents);
     console.log(refugees);
     console.log(accessible);
+    console.log(adm1);
+    console.log(adm2);
+    console.log(countries);
 }
 
 function generateKeyStats(data){
@@ -90,6 +93,24 @@ var fundingCall = $.ajax({
     dataType: 'json',
 });
 
+var adm1Call = $.ajax({ 
+    type: 'GET', 
+    url: 'data/lake_chad_adm1.json',
+    dataType: 'json',
+});
+
+var adm2Call = $.ajax({ 
+    type: 'GET', 
+    url: 'data/lake_chad_adm2.json',
+    dataType: 'json',
+});
+
+var countriesCall = $.ajax({ 
+    type: 'GET', 
+    url: 'data/lake_chad_countries.json',
+    dataType: 'json',
+});
+
 $.when(keyStatsCall).then(function(keyStatsArgs){
     var data = parseDates(['#date'],(hxlProxyToJSON(keyStatsArgs)));
     generateKeyStats(data);
@@ -105,9 +126,12 @@ $.when(fundingCall).then(function(fundingArgs){
     generateFundingGraph(data);
 });
 
-$.when(incidentsCall,refugeesCall,accessibleCall).then(function(incidentsArgs,refugeesArgs,accessibleArgs){
+$.when(incidentsCall,refugeesCall,accessibleCall,adm1Call,adm2Call,countriesCall).then(function(incidentsArgs,refugeesArgs,accessibleArgs,adm1Args,adm2Args,countriesArgs){
     var incidents = parseDates(['#date'],(hxlProxyToJSON(incidentsArgs[0])));
     var refugees = parseDates(['#date'],(hxlProxyToJSON(refugeesArgs[0])));
     var accessible = parseDates(['#date'],(hxlProxyToJSON(accessibleArgs[0])));
-    generateMap(incidents,refugees,accessible);
+    var adm1 = topojson.feature(adm1Args[0],adm1Args[0].objects.lake_chad_adm1);
+    var adm2 = topojson.feature(adm2Args[0],adm2Args[0].objects.lake_chad_adm2);
+    var countries = topojson.feature(countriesArgs[0],countriesArgs[0].objects.lake_chad_countries);
+    generateMap(incidents,refugees,accessible,adm1,adm2,countries);
 });
