@@ -1,0 +1,35 @@
+.container{
+	margin-top: 20px;
+}
+
+h3{
+	font-size: 15px;
+}
+h4{
+	font-size: 12px;
+}
+
+.header{
+	border-bottom: 1px solid #999;
+	padding-bottom: 5px;
+}
+
+hr{
+	border-top-color: #999;
+}
+
+p{
+	font-size: 13px;
+}
+
+.keyfigures h4{
+	min-height: 26px;
+}
+.statsNum{
+	font-size: 20px;
+	vertical-align: top;
+}
+.sparkline{
+	display: inline-block;
+	padding-left: 10px;
+}

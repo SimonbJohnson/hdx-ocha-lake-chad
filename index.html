@@ -5,8 +5,11 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="css/bootstrap.min.css">
         <link rel="stylesheet" type="text/css" href="css/site.css"/>
+        <link rel="stylesheet" type="text/css" href="css/c3.min.css"/>
         <script src="js/jquery.js"></script>
+        <script src="js/crossfilter.v1.min.js"></script>
         <script src="js/d3.min.js"></script>
+        <script src="js/c3.min.js"></script>
         <script src="js/topojson.v1.min.js"></script>
         <script type="text/javascript">
             var _gaq = _gaq || [];
@@ -24,16 +27,60 @@
         <div class="container">
             <div class="row">
                 <div class="col-md-3">
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque posuere rhoncus consectetur. Morbi metus augue, accumsan id aliquet quis, porttitor ut erat. Vivamus gravida placerat augue nec finibus. Vestibulum ut lobortis odio. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.</div>
-                <div class="col-md-3"></div>
-                <div class="col-md-6"></div>
+                    <h4 class="header">Background</h4>
+                    <p><b>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</b> Pellentesque posuere rhoncus consectetur. Morbi metus augue, accumsan id aliquet quis, porttitor ut erat. Vivamus gravida placerat augue nec finibus. Vestibulum ut lobortis odio. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.</p>
+                </div>
+                <div class="col-md-4">
+                    <h4 id="fundingChartHeader" class="header"></h4>
+                    <div id="fundingChart"></div>
+                </div>
+                <div class="col-md-5 keyfigures">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <h4>Living in affected area</h4>
+                            <span id="affectedTotal" class="statsNum"></span><div id="affectedLine" class="sparkline"></div>
+                        </div>
+                        <div class="col-md-4">
+                            <h4>People in Need</h4>
+                            <span id="inneedTotal" class="statsNum"></span><div id="inneedLine" class="sparkline"></div>
+                        </div>
+                        <div class="col-md-4">
+                            <h4>Food Insecure</h4>
+                            <span id="foodinsecureTotal" class="statsNum"></span><div id="foodinsecureLine" class="sparkline"></div>
+                        </div>
+                        <div class="col-md-4">
+                            <h4>People Displaced</h4>
+                            <span id="displacedTotal" class="statsNum"></span><div id="displacedLine" class="sparkline"></div>
+                        </div>
+                        <div class="col-md-4">
+                            <h4>Children suffering from acute malnutrition</h4>
+                            <span id="samTotal" class="statsNum"></span><div id="samLine" class="sparkline"></div>
+                        </div>
+                    </div>
+                </div>
             </div>
+            <hr>
             <div id="controlslayer" class="row">
                 <div></div>
             </div>
             <div id="mainviz" class="row">
+                <div class="col-md-4">
+                    <h3 class="header">Food Insecure</h3>
+                    <div id="foodinsecureChart"></div>
+                </div>
+                <div class="col-md-4">
+                    <div id="map"></div>
+                </div>
+                <div class="col-md-4">
+                    <h3 class="header">Incidents and Deaths</h3>
+                    <div id="incidentChart"></div>
+
+                    <h3 class="header">Displacement trend</h3>
+                    <div id="displacedChart"></div>
+                </div>
             </div>
         </div>
+        <script src="js/map.js"></script>  
         <script src="js/site.js"></script>    
     </body>
 </html>
