@@ -37,13 +37,7 @@ function parseDates(tags,data){
 }
 
 function generateMap(incidents,refugees,accessible,adm1,adm2,countries){
-    map.init(adm1,adm2,countries,incidents);
-    console.log(incidents);
-    // console.log(refugees);
-    // console.log(accessible);
-    // console.log(adm1);
-    // console.log(adm2);
-    // console.log(countries);
+    map.init(adm1,adm2,countries,incidents,refugees, accessible);
 }
 
 function generateKeyStats(data){
@@ -336,7 +330,7 @@ var iadCall = $.ajax({
 
 var incidentsCall = $.ajax({ 
     type: 'GET', 
-    url: 'https://proxy.hxlstandard.org/data.json?strip-headers=on&url=https%3A//docs.google.com/spreadsheets/d/1hFEDRWiVW47WLYOmK93YjO4fhjp0KR_kkckKNbNisbw/edit%23gid%3D631467873&sheet=0',
+    url: 'https://proxy.hxlstandard.org/data.json?strip-headers=on&url=https%3A//docs.google.com/spreadsheets/d/1hFEDRWiVW47WLYOmK93YjO4fhjp0KR_kkckKNbNisbw/edit%23gid%3D811086350&sheet=0',
     dataType: 'json',
 });
 
