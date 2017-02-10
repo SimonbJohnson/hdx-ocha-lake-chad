@@ -32,8 +32,8 @@
 			map.accessDim = map.access.dimension(function(d){return d['#date']});
 
 			//get min and max of date range
-    		map.minDate = d3.min(incidents,function(d){return (d['#date']);});
-    		map.maxDate = d3.max(incidents,function(d){return (d['#date']);});
+    		map.minDate = d3.min(displaced,function(d){return (d['#date']);});
+    		map.maxDate = d3.max(displaced,function(d){return (d['#date']);});
 
 		    //create timeline slider
 		    map.createTimeline(map.minDate);
