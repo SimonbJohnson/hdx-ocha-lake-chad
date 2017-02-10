@@ -16,6 +16,7 @@ h4{
 
 hr{
 	border-top-color: #999;
+	margin: 10px 0;
 }
 
 p{
@@ -33,6 +34,22 @@ p{
 	display: inline-block;
 	padding-left: 10px;
 }
+
+#controlslayer{
+	text-align: center;
+}
+
+/* map legend */
+#maplegend li {
+	list-style-type: none;
+}
+#maplegend input {
+	margin-right: 10px;
+}
+#maplegend label {
+	font-weight: normal;
+}
+
 
 /* timeline slider styles */
 .axis {

@@ -35,9 +35,6 @@
     		map.minDate = d3.min(displaced,function(d){return (d['#date']);});
     		map.maxDate = d3.max(displaced,function(d){return (d['#date']);});
 
-		    //create timeline slider
-		    map.createTimeline(map.minDate);
-
 			var width = $('#map').width();
 			var height = 450;
 			var svg = d3.select('#map').append('svg')
@@ -101,23 +98,27 @@
 
 		    //map.update(new Date(2016,1,29));
 		    //map.update(new Date(2016,2,21));
-		    map.update(new Date(2016,3,6));
+		    //map.update(new Date(2016,3,6));
+
+		    //create timeline slider
+		    map.createTimeline(map.minDate);
+		    map.createLegend();
 		},
 
 		createTimeline: function(date){
 			// parameters
 			var margin = {
-			    top: 20,
-			    right: 25,
-			    bottom: 20,
+			    top: 10,
+			    right: 35,
+			    bottom: 10,
 			    left: 25
 			},
-			width = $('#map').width() - margin.left - margin.right,
+			width = $('#timeline').width() - margin.left - margin.right,
 			height = 80 - margin.bottom - margin.top;
 
 			// scale function
 			map.timeScale = d3.time.scale()
-			  	.domain([new Date(map.minDate), new Date(map.maxDate)])
+			  	.domain([new Date(map.minDate),new Date(map.maxDate)])
 			  	.range([0, width])
 			  	.clamp(true);
 
@@ -129,7 +130,7 @@
 			  	.extent([startingValue, startingValue])
 			  	.on('brush', map.brushed);
 
-			var svg = d3.select('#map').append('svg')
+			var svg = d3.select('#timeline').append('svg')
 			  	.attr('width', width + margin.left + margin.right)
 			  	.attr('height', height + margin.top + margin.bottom)
 			  	.append('g')
@@ -139,12 +140,13 @@
 				.attr('class', 'x axis')
 				.attr('transform', 'translate(0,' + height / 2 + ')')
 				.call(d3.svg.axis()
-			  	.scale(map.timeScale)
-			  	.orient('bottom')
-			  	.tickFormat(function(d) { return map.formatDate(d); })
-			  	.tickSize(0)
-			  	.tickPadding(12)
-			  	.tickValues([map.timeScale.domain()[0], map.timeScale.domain()[1]]))
+			  		.scale(map.timeScale)
+			  		.orient('bottom')
+			  		.tickFormat(function(d) { return map.formatDate(d); })
+			  		.tickSize(0)
+			  		.tickPadding(12)
+			  		.tickValues([map.timeScale.domain()[0], map.timeScale.domain()[1]])
+			  	)
 			  	.select('.domain')
 			  	.select(function() {
 			    	return this.parentNode.appendChild(this.cloneNode(true));
@@ -184,8 +186,26 @@
 			}
 			map.handle.attr('transform', 'translate(' + map.timeScale(value) + ',0)');
 			map.handle.select('text').text(map.formatDate(value));
-			console.log(value);
 			map.update(value);
+		},
+
+		createLegend: function(){
+			var layers = [{id:'incidentslayer',name:'Incidents'}, {id:'refugeeslayer',name:'Refugees'}];
+			$('#maplegend').append('<ul>');
+
+        	$.each(layers, function( key, value){
+				$('#maplegend ul').append('<li data-layer="'+layers[key].id+'"><input type="checkbox" name="maplayer" id="'+layers[key].name+'" data-layer="'+layers[key].id+'" value="'+key+'" checked><label for="'+layers[key].name+'">'+layers[key].name+'</label></li>');
+			});
+
+        	$('#maplegend input').change(function(e){
+			 	var layer = $('#'+$(e.target).attr('data-layer'));
+			 	if ($(e.target).is(':checked')) {
+			 		layer.attr('display', 'block')
+			 	}
+			 	else{
+			 		layer.attr('display', 'none')
+			 	}
+			});
 		},
 
 		// all update functions
@@ -296,7 +316,7 @@
 			map.accessDim.filter();
 			var data = map.accessDim.filter(date).top(Infinity);
 			//comment out when pcodes introduced
-			console.log(data);
+			//console.log(data);
 			data.forEach(function(d){
 				d3.select('#'+d['#adm2+code'])
 					.attr('stroke',function(){
