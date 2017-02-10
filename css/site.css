@@ -33,3 +33,31 @@ p{
 	display: inline-block;
 	padding-left: 10px;
 }
+
+/* timeline slider styles */
+.axis {
+  fill: #999;
+  font-size: 10px;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+}
+
+.axis .halo {
+  stroke: #999;
+  stroke-width: 8px;
+  stroke-linecap: round;
+}
+
+.slider .handle path {
+  stroke: black;
+  stroke-width: 3px;
+  stroke-linecap: round;
+  pointer-events: none;
+}
+
+.slider .handle text {
+  fill: #999;
+  text-align: center;
+  font-size: 12px;
+}

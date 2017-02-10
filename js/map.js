@@ -1,10 +1,9 @@
 (function() {
 	var map = window.map = {
-		SVG: '',
-		ZOOM: '',
+		formatDate: d3.time.format("%b %Y"),
+		parseDate: d3.time.format("%m/%d/%Y").parse,
 
 		init: function(adm1,adm2,countries, incidents, displaced, accessible){
-
 			//get centroids of adm for refuguee points
 
 			map.refugeeLocations = {};
@@ -23,7 +22,6 @@
 			map.incidentsDim = map.incidents.dimension(function(d) { return d['#date']; });
 
 			//idp and refugee data with date filter and grouping by adm1
-
 			map.displaced = crossfilter(displaced);
 			map.displacedDim = map.displaced.dimension(function(d) { return d['#date']; });
 			map.refugeeGroup = map.displaced.dimension(function(d) { return d['#adm1']; }).group().reduceSum(function(d){return d['#affected+refugees']});
@@ -33,21 +31,25 @@
 			map.access = crossfilter(accessible);
 			map.accessDim = map.access.dimension(function(d){return d['#date']});
 
+			//get min and max of date range
+    		map.minDate = d3.min(incidents,function(d){return (d['#date']);});
+    		map.maxDate = d3.max(incidents,function(d){return (d['#date']);});
+
+		    //create timeline slider
+		    map.createTimeline(map.minDate);
 
 			var width = $('#map').width();
 			var height = 450;
-    		map.ZOOM = d3.behavior.zoom().scaleExtent([1, 8]).on('zoom', map.zoom);
-			map.SVG = d3.select('#map').append('svg')
+			var svg = d3.select('#map').append('svg')
 	        	.attr('width', width)
 	        	.attr('height', height)
-        		//.call(map.ZOOM);
 
 		    map.projection = d3.geo.mercator()
 		        .center([13, 13])
 		        .scale(width*5)
 		        .translate([width / 2, height / 2]);    
 
-		    var g = map.SVG.append('g');
+		    var g = svg.append('g');
 
 		    g.selectAll('path')
 		     	.data(countries.features).enter()
@@ -55,13 +57,13 @@
 		      	.attr('d', d3.geo.path().projection(map.projection))
 		      	.attr('class','country')
         		.attr('fill', '#ffffff')
-        		.attr('stroke-wdith',1)
+        		.attr('stroke-width',1)
         		.attr('stroke','#cccccc')
 		      	.attr('id',function(d){
 		        	return d.properties.CNTRY_NAME;
 		      	});
 
-		    var g = map.SVG.append('g');
+		    var g = svg.append('g');
 
 		    g.selectAll('path')
 		     	.data(adm1.features).enter()
@@ -69,15 +71,15 @@
 		      	.attr('d', d3.geo.path().projection(map.projection))
 		      	.attr('class','adms')
         		.attr('fill', '#ffffff')
-        		.attr('stroke-wdith',1)
+        		.attr('stroke-width',1)
         		.attr('stroke','#cccccc')
 		      	.attr('id',function(d){
 		        	return d.properties.ADM1_NAME;
 		      	});
 
-		    var g = map.SVG.append('g').attr('id','incidentslayer');
+		    var g = svg.append('g').attr('id','incidentslayer');
 
-		    var g = map.SVG.append('g').attr('id','refugeeslayer');
+		    var g = svg.append('g').attr('id','refugeeslayer');
 
 		    //load data for a particular date
 
@@ -86,14 +88,90 @@
 		    map.update(new Date(2016,3,6));
 		},
 
-		zoom: function(){
-			var g = d3.select('#map').select('svg').select('g');
-		    g.attr('transform', 'translate(' + map.ZOOM.translate() + ') scale(' + map.ZOOM.scale() + ')');
-		    g.selectAll('path').style('stroke-width', (map.ZOOM.scaleExtent()[1]/map.ZOOM.scale()) / 10);
+		createTimeline: function(date){
+			// parameters
+			var margin = {
+			    top: 20,
+			    right: 25,
+			    bottom: 20,
+			    left: 25
+			},
+			width = $('#map').width() - margin.left - margin.right,
+			height = 80 - margin.bottom - margin.top;
+
+			// scale function
+			map.timeScale = d3.time.scale()
+			  	.domain([new Date(map.minDate), new Date(map.maxDate)])
+			  	.range([0, width])
+			  	.clamp(true);
+
+			var startValue = map.timeScale(date);
+			startingValue = date;
+
+			map.brush = d3.svg.brush()
+			  	.x(map.timeScale)
+			  	.extent([startingValue, startingValue])
+			  	.on('brush', map.brushed);
+
+			var svg = d3.select('#map').append('svg')
+			  	.attr('width', width + margin.left + margin.right)
+			  	.attr('height', height + margin.top + margin.bottom)
+			  	.append('g')
+			  	.attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+			svg.append('g')
+				.attr('class', 'x axis')
+				.attr('transform', 'translate(0,' + height / 2 + ')')
+				.call(d3.svg.axis()
+			  	.scale(map.timeScale)
+			  	.orient('bottom')
+			  	.tickFormat(function(d) { return map.formatDate(d); })
+			  	.tickSize(0)
+			  	.tickPadding(12)
+			  	.tickValues([map.timeScale.domain()[0], map.timeScale.domain()[1]]))
+			  	.select('.domain')
+			  	.select(function() {
+			    	return this.parentNode.appendChild(this.cloneNode(true));
+			  	})
+			  	.attr('class', 'halo');
+
+			var slider = svg.append('g')
+			  	.attr('class', 'slider')
+			  	.call(map.brush);
+
+			slider.selectAll('.extent,.resize')
+			  	.remove();
+
+			slider.select('.background')
+			  	.attr('height', height);
+
+			map.handle = slider.append('g')
+			  	.attr('class', 'handle')
+
+			map.handle.append("path")
+			  	.attr('transform', 'translate(0,' + height / 2 + ')')
+			  	.attr('d', 'M 0 -10 V 10')
+
+			map.handle.append('text')
+			  	.text(startingValue)
+			  	.attr('transform', 'translate(' + (-18) + ' ,' + (height / 2 - 15) + ')');
+
+			slider
+			  	.call(map.brush.event)
+		},
+
+		brushed: function(){
+			var value = map.brush.extent()[0];
+			if (d3.event.sourceEvent) {
+				value = map.timeScale.invert(d3.mouse(this)[0]);
+				map.brush.extent([value, value]);
+			}
+			map.handle.attr('transform', 'translate(' + map.timeScale(value) + ',0)');
+			map.handle.select('text').text(map.formatDate(value));
+			map.update(value);
 		},
 
 		// all update functions
-
 		update: function (date){
 			map.updateIncidents(date);
 			map.updateRefugees(date);
