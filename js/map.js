@@ -13,7 +13,7 @@
 				var maxx = d3.max(f.geometry.coordinates[0],function(d){return d[0]});
 				var miny = d3.min(f.geometry.coordinates[0],function(d){return d[1]});
 				var maxy = d3.max(f.geometry.coordinates[0],function(d){return d[1]});
-				map.refugeeLocations[f.properties.ADM1_NAME] = [(minx+maxx)/2,(miny+maxy)/2];
+				map.refugeeLocations[f.properties.Rowcacode1] = [(minx+maxx)/2,(miny+maxy)/2];
 			});
 
 			//incident points with date filter
@@ -24,8 +24,8 @@
 			//idp and refugee data with date filter and grouping by adm1
 			map.displaced = crossfilter(displaced);
 			map.displacedDim = map.displaced.dimension(function(d) { return d['#date']; });
-			map.refugeeGroup = map.displaced.dimension(function(d) { return d['#adm1']; }).group().reduceSum(function(d){return d['#affected+refugees']});
-			map.idpsGroup = map.displaced.dimension(function(d) { return d['#adm1']; }).group().reduceSum(function(d){return d['#affected+idps']});
+			map.refugeeGroup = map.displaced.dimension(function(d) { return d['#adm1+code']; }).group().reduceSum(function(d){return d['#affected+refugees']});
+			map.idpsGroup = map.displaced.dimension(function(d) { return d['#adm1+code']; }).group().reduceSum(function(d){return d['#affected+idps']});
 
 			//accessibility data with date filter
 			map.access = crossfilter(accessible);
@@ -69,12 +69,28 @@
 		     	.data(adm1.features).enter()
 		     	.append('path')
 		      	.attr('d', d3.geo.path().projection(map.projection))
-		      	.attr('class','adms')
+		      	.attr('class','adm1')
         		.attr('fill', '#ffffff')
         		.attr('stroke-width',1)
         		.attr('stroke','#cccccc')
 		      	.attr('id',function(d){
-		        	return d.properties.ADM1_NAME;
+		        	return d.properties.Rowcacode1;
+		      	});
+
+			var g = svg.append('g');
+
+		    g.selectAll('path')
+		     	.data(adm2.features).enter()
+		     	.append('path')
+		      	.attr('d', d3.geo.path().projection(map.projection))
+		      	.attr('class','adm2')
+		      	.attr('fill-opacity',0)
+		      	.attr('stroke-opacity',0)
+        		.attr('fill', '#ffffff')
+        		.attr('stroke-width',1)
+        		.attr('stroke','#cccccc')
+		      	.attr('id',function(d){
+		        	return d.properties.Rowcacode2;
 		      	});
 
 		    var g = svg.append('g').attr('id','incidentslayer');
@@ -168,6 +184,7 @@
 			}
 			map.handle.attr('transform', 'translate(' + map.timeScale(value) + ',0)');
 			map.handle.select('text').text(map.formatDate(value));
+			console.log(value);
 			map.update(value);
 		},
 
@@ -185,8 +202,7 @@
 			var datefilter = new Date(date.getFullYear(),date.getMonth(),1);
 
 			var data = map.incidentsDim.filter(datefilter).top(Infinity);
-			console.log(data);
-			
+		
 			d3.select('#incidentslayer').selectAll('.incidents').remove();
 			
 			var circles = d3.select('#incidentslayer').selectAll('circle')
@@ -253,7 +269,7 @@
 		},
 
 		updateIDPs: function(date){
-			d3.selectAll('.adms').attr('fill','#f1eef6');
+			d3.selectAll('.adm1').attr('fill','#f1eef6');
 			var colors = ['#f1eef6','#d0d1e6','#a6bddb','#74a9cf','#3690c0'];
 			var labels = [1000,10000,100000,1000000]
 			map.displacedDim.filter();
@@ -276,20 +292,21 @@
 		},
 
 		updateAccessiblity: function(date){
-			d3.selectAll('.adms').attr('stroke','#cccccc');
+			d3.selectAll('.adm2').attr('stroke','#cccccc').attr('stroke-opacity',0);
 			map.accessDim.filter();
-			var data = map.accessDim.filter(new Date(2016,8,5)).top(Infinity);
+			var data = map.accessDim.filter(date).top(Infinity);
 			//comment out when pcodes introduced
-			/*data.forEach(function(d){
-				d3.select('#'+d['#adm1'])
+			console.log(data);
+			data.forEach(function(d){
+				d3.select('#'+d['#adm2+code'])
 					.attr('stroke',function(){
 						if(d['#status']=='Accessible with restriction'){
 							return '#FF9B00';
 						} else if (d['#status']=='Not Accesible') {
 							return '#FF0000';
 						}
-					});
-			});*/
+					}).attr('stroke-opacity',1);
+			});
 
 		}		
 	}
