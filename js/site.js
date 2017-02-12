@@ -270,7 +270,7 @@ function generateIADGraph(data){
 function generateDisplacedGraph(data){
     var cf = crossfilter(data);
     var displacedDimension = cf.dimension(function(d){return d['#date'];});
-    var displacedGroup = displacedDimension.group(function(d) {return d3.time.month(d);}).reduceSum(function(d){ return (d['#affected+idps'] - d['#affected+refugees']); }).top(Infinity);
+    var displacedGroup = displacedDimension.group().reduceSum(function(d){return parseInt(d['#affected+refugees'])+parseInt(d['#affected+idps']); }).top(Infinity);
     
     var displacedArr = ['Displaced'];
     var datesArr = ['x'];

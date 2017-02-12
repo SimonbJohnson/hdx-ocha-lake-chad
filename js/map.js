@@ -1,6 +1,6 @@
 (function() {
 	var map = window.map = {
-		formatDate: d3.time.format("%b %Y"),
+		formatDate: d3.time.format("%d %b %Y"),
 		parseDate: d3.time.format("%m/%d/%Y").parse,
 
 		init: function(adm1,adm2,countries, incidents, displaced, accessible){
@@ -62,7 +62,7 @@
 		      	.attr('d', d3.geo.path().projection(map.projection))
 		      	.attr('class','country')
         		.attr('fill', '#ffffff')
-        		.attr('stroke-width',1)
+        		.attr('stroke-width',2)
         		.attr('stroke','#cccccc')
 		      	.attr('id',function(d){
 		        	return d.properties.CNTRY_NAME;
@@ -76,8 +76,8 @@
 		      	.attr('d', d3.geo.path().projection(map.projection))
 		      	.attr('class','adm1')
         		.attr('fill', '#ffffff')
-        		.attr('stroke-width',1)
-        		.attr('stroke','#cccccc')
+        		.attr('stroke-width',2)
+        		.attr('stroke','#aaaaaa')
 		      	.attr('id',function(d){
 		        	return d.properties.Rowcacode1;
 		      	});
@@ -92,7 +92,7 @@
 		      	.attr('fill-opacity',0)
 		      	.attr('stroke-opacity',0)
         		.attr('fill', '#ffffff')
-        		.attr('stroke-width',1)
+        		.attr('stroke-width',2)
         		.attr('stroke','#cccccc')
 		      	.attr('id',function(d){
 		        	return d.properties.Rowcacode2;
@@ -274,10 +274,10 @@
 				})
 			    .attr('r', 4)
 			    .attr('opacity',0)
-			    .attr('fill','#FF9B00')
+			    .attr('fill','#FFEB3B')
 			    .attr('class','incidents');
 
-			circles.transition().attr('opacity',0.5);
+			circles.transition().attr('opacity',0.85);
 		},
 
 		updateRefugees: function(date){
@@ -323,12 +323,12 @@
 			    .attr('fill','#4CAF50')
 			    .attr('class','refugees');
 
-			circles.transition().attr('opacity',0.7);
+			circles.transition().attr('opacity',0.85);
 		},
 
 		updateIDPs: function(date){
 			d3.selectAll('.adm1').attr('fill','#f1eef6');
-			var colors = ['#f1eef6','#d0d1e6','#a6bddb','#74a9cf','#3690c0'];
+			var colors = ['#ffffff','#fff7fb','#ece7f2','#d0d1e6','#a6bddb'];
 			var labels = [1000,10000,100000,1000000]
 			map.displacedDim.filter();
 			map.displacedDim.filter(date);
@@ -359,9 +359,9 @@
 				d3.select('#'+d['#adm2+code'])
 					.attr('stroke',function(){
 						if(d['#status']=='Accessible with restriction'){
-							return '#FF9B00';
+							return '#f4a582';
 						} else if (d['#status']=='Not Accesible') {
-							return '#FF0000';
+							return '#b2182b';
 						}
 					}).attr('stroke-opacity',1);
 			});
