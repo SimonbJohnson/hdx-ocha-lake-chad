@@ -109,24 +109,22 @@ function generateKeyStats(data){
 
 function generateFundingGraph(data){
     var cf = crossfilter(data);
-    var fundsDimension = cf.dimension(function(d){return d['#country+name'];});
-    var fundsGroup = fundsDimension.group().reduceSum(function(d){ return d['#meta+funding']; }).top(4);
-    var unmetGroup = fundsDimension.group().reduceSum(function(d){ return (d['#meta+requirement'] - d['#meta+funding']); }).top(4);
+    var fundsDimension = cf.dimension(function(d){return d['#date'];});
+    
+    var maxDate = d3.max(data,function(d){return d['#date'];});
 
-    var dateFormat = d3.time.format('%b %Y'); 
-    var minDate = dateFormat( d3.min(data,function(d){return d['#date'];}) );
-    var maxDate = dateFormat( d3.max(data,function(d){return d['#date'];}) );
+    var fundingData = fundsDimension.filter(maxDate).top(Infinity);
 
     var locationArr = ['x'];
     var fundedArr = ['Funded'];
     var unmetArr = ['Unmet'];
-    for (var i=0;i<fundsGroup.length;i++){
-        locationArr.push(fundsGroup[i].key);
-        fundedArr.push(fundsGroup[i].value);
-        unmetArr.push(unmetGroup[i].value);
+    for (var i=0;i<fundingData.length;i++){
+        locationArr.push(fundingData[i]['#country+name']);
+        fundedArr.push(fundingData[i]['#meta+funding']);
+        unmetArr.push(fundingData[i]['#meta+requirement']-fundingData[i]['#meta+funding']);
     }
 
-    $('#fundingChartHeader').html('Revised Requirement ' + minDate + ' – ' + maxDate);
+    $('#fundingChartHeader').html('Revised Requirement for ' + maxDate.getFullYear() + ' (in US $)');
     var chart = c3.generate({
         bindto: '#fundingChart',
         size: { height: 150 },
@@ -313,7 +311,7 @@ function generateDisplacedGraph(data){
 }
 
 
-var numFormat = d3.format('.2s');
+var numFormat = function(d){return d3.format('.2s')(d).replace('G','B')};
 
 var keyStatsCall = $.ajax({ 
     type: 'GET', 
