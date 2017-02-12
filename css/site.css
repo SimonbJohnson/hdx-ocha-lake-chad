@@ -62,7 +62,7 @@ p{
 
 .axis .halo {
   stroke: #999;
-  stroke-width: 8px;
+  stroke-width: 4px;
   stroke-linecap: round;
 }
 

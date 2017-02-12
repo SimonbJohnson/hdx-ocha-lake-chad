@@ -274,7 +274,7 @@
 				})
 			    .attr('r', 4)
 			    .attr('opacity',0)
-			    .attr('fill','#FFEB3B')
+			    .attr('fill','#FF9B00')
 			    .attr('class','incidents');
 
 			circles.transition().attr('opacity',0.85);

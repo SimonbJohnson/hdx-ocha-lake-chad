@@ -131,7 +131,7 @@ function generateFundingGraph(data){
         bindto: '#fundingChart',
         size: { height: 150 },
         color: {
-          pattern: ['#FF9B00', '#0066b9']
+          pattern: ['#0066b9','#FF9B00']
         },
         data: {
             x: 'x',
