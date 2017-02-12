@@ -41,29 +41,27 @@ function generateMap(incidents,refugees,accessible,adm1,adm2,countries){
 }
 
 function generateKeyStats(data){
+
     var cf = crossfilter(data);
     var datesDimension = cf.dimension(function(d){ return d['#date']; });
-    var totalAffectedGroup = cf.groupAll().reduceSum(function(d) { return d['#affected']; }).value();
-    var affectedGroup = datesDimension.group(function(d) {return d3.time.month(d);}).reduceSum(function(d){ return (d['#affected']); }).top(Infinity);
 
-    var totalInneedGroup = cf.groupAll().reduceSum(function(d) { return d['#inneed']; }).value();
-    var inneedGroup = datesDimension.group(function(d) {return d3.time.month(d);}).reduceSum(function(d){ return (d['#inneed']); }).top(Infinity);
+    var affectedGroup = datesDimension.group().reduceSum(function(d){ return (d['#affected']); }).top(Infinity);
 
-    var totalFoodinsecureGroup = cf.groupAll().reduceSum(function(d) { return d['#affected+foodinsecure']; }).value();
-    var foodinsecureGroup = datesDimension.group(function(d) {return d3.time.month(d);}).reduceSum(function(d){ return (d['#affected+foodinsecure']); }).top(Infinity);
+    var inneedGroup = datesDimension.group().reduceSum(function(d){ return (d['#inneed']); }).top(Infinity);
 
-    var totalDisplacedGroup = cf.groupAll().reduceSum(function(d) { return d['#affected+displaced']; }).value();
-    var displacedGroup = datesDimension.group(function(d) {return d3.time.month(d);}).reduceSum(function(d){ return (d['#affected+displaced']); }).top(Infinity);
+    var foodinsecureGroup = datesDimension.group().reduceSum(function(d){ return (d['#affected+foodinsecure']); }).top(Infinity);
 
-    var totalSamGroup = cf.groupAll().reduceSum(function(d) { return d['#affected+sam']; }).value();
-    var samGroup = datesDimension.group(function(d) {return d3.time.month(d);}).reduceSum(function(d){ return (d['#affected+sam']); }).top(Infinity);
+    var displacedGroup = datesDimension.group().reduceSum(function(d){ return (d['#affected+displaced']); }).top(Infinity);
 
+    var samGroup = datesDimension.group().reduceSum(function(d){ return (d['#affected+sam']); }).top(Infinity);
+    
     var datesArr = ['x'];
     var affectedArr = ['Affected'];
     var inneedArr = ['In Need'];
     var foodinsecureArr = ['Food Insecure'];
     var displacedArr = ['Displaced'];
     var samArr = ['Sam'];
+
     for (var i=0;i<affectedGroup.length;i++){
         datesArr.push(affectedGroup[i].key);
         affectedArr.push(affectedGroup[i].value);
@@ -76,13 +74,14 @@ function generateKeyStats(data){
     var sparklineW = 70;
     var sparklineH = 40;
     var keyFiguresArr = [
-            { dimension: 'affected', dimensionArr: affectedArr, total: totalAffectedGroup },
-            { dimension: 'inneed', dimensionArr: inneedArr, total: totalInneedGroup },
-            { dimension: 'foodinsecure', dimensionArr: foodinsecureArr, total: totalFoodinsecureGroup },
-            { dimension: 'displaced', dimensionArr: displacedArr, total: totalDisplacedGroup },
-            { dimension: 'sam', dimensionArr: samArr, total: totalSamGroup }
+            { dimension: 'affected', dimensionArr: affectedArr, total: affectedGroup[affectedGroup.length-1].value },
+            { dimension: 'inneed', dimensionArr: inneedArr, total: inneedGroup[inneedGroup.length-1].value },
+            { dimension: 'foodinsecure', dimensionArr: foodinsecureArr, total: foodinsecureGroup[foodinsecureGroup.length-1].value },
+            { dimension: 'displaced', dimensionArr: displacedArr, total: displacedGroup[displacedGroup.length-1].value },
+            { dimension: 'sam', dimensionArr: samArr, total: samGroup[samGroup.length-1].value }
         ];
     for (var i=0;i<keyFiguresArr.length;i++) {
+        console.log(keyFiguresArr[i]);
         $('#'+keyFiguresArr[i].dimension+'Total').html(numFormat(keyFiguresArr[i].total));
         var chart = c3.generate({
             bindto: '#'+keyFiguresArr[i].dimension+'Line',
