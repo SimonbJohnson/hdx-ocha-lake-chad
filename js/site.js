@@ -169,7 +169,7 @@ function generateFundingGraph(data){
 function generateFoodInsecureGraph(data){
     var cf = crossfilter(data);
     var foodinsecureDimension = cf.dimension(function(d){return d['#date'];});
-    var foodinsecureGroup = foodinsecureDimension.group(function(d) {return d3.time.month(d);}).reduceSum(function(d){ return (d['#affected+foodinsecure']); }).top(Infinity);
+    var foodinsecureGroup = foodinsecureDimension.group().reduceSum(function(d){ return (d['#affected+foodinsecure']); }).top(Infinity);
     
     var foodinsecureArr = ['Food Insecure'];
     var datesArr = ['x'];
@@ -187,7 +187,7 @@ function generateFoodInsecureGraph(data){
         data: {
             x: 'x',
             columns: [ datesArr, foodinsecureArr ],
-            type: 'bar' 
+            type: 'area' 
         },
         bar: { width: 15 },
         axis: {
