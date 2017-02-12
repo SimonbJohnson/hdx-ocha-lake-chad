@@ -228,22 +228,57 @@
 		},
 
 		createLegend: function(){
-			var layers = [{id:'incidentslayer',name:'Incidents'}, {id:'refugeeslayer',name:'Refugees'}];
-			$('#maplegend').append('<ul>');
+			var layers = [{id:'incidentslayer',name:'Incidents',color:'#FF9B00'}, {id:'refugeeslayer',name:'Refugees',color:'#4CAF50'}];
+			$('#maplegend').append('<input type="checkbox" name="maplayer" id="incidentscheck" checked><label for="incidentscheck">Incidents</label> <svg width="14" height="12"><circle cx="6" cy="6" r="6" fill="#FF9B00" /></svg><br />');
 
-        	$.each(layers, function( key, value){
-				$('#maplegend ul').append('<li data-layer="'+layers[key].id+'"><input type="checkbox" name="maplayer" id="'+layers[key].name+'" data-layer="'+layers[key].id+'" value="'+key+'" checked><label for="'+layers[key].name+'">'+layers[key].name+'</label></li>');
-			});
-
-        	$('#maplegend input').change(function(e){
-			 	var layer = $('#'+$(e.target).attr('data-layer'));
+        	$('#incidentscheck').change(function(e){
 			 	if ($(e.target).is(':checked')) {
-			 		layer.attr('display', 'block')
+			 		$('#incidentslayer').attr('display', 'block')
 			 	}
 			 	else{
-			 		layer.attr('display', 'none')
+			 		$('#incidentslayer').attr('display', 'none')
 			 	}
 			});
+
+			$('#maplegend').append('<input type="checkbox" name="maplayer" id="refugeecheck" checked><label for="refugeecheck">Refugees</label><div id="refcircles"></div>')
+		
+		    $('#refugeecheck').change(function(e){
+			 	if ($(e.target).is(':checked')) {
+			 		$('#refugeeslayer').attr('display', 'block')
+			 	}
+			 	else{
+			 		$('#refugeeslayer').attr('display', 'none')
+			 	}
+			});
+
+			var refdata = [1000,10000,50000];
+
+			var svg = d3.select('#refcircles').append('svg')
+	        	.attr('width', 80)
+	        	.attr('height', 85)
+
+			svg.selectAll('circle')
+				.data(refdata).enter()
+				.append('circle')
+				.attr('cx',function(d){
+					return 20
+				})
+				.attr('cy',function(d,i){
+					return i*30+10;
+				})
+			    .attr('r', function(d){
+			    	return map.rscale(d);
+			    })
+			    .attr('opacity',1)
+			    .attr('fill','#4CAF50')
+
+			svg.selectAll('text')
+				.data(refdata).enter()
+				.append('text')
+				.attr('x', function(d) { return 40; })
+                .attr("y", function(d,i) { return i*30+15; })
+                .text( function (d) { return d; })
+
 		},
 
 		// all update functions
@@ -303,7 +338,7 @@
 
 			d3.select('#refugeeslayer').selectAll('.refugees').remove();
 
-			rscale = d3.scale.linear()
+			map.rscale = d3.scale.linear()
 		        .domain([1, 100000])
 		        .range([2, 20]);
 			
@@ -317,7 +352,7 @@
 					return map.projection(d.coords)[1];
 				})
 			    .attr('r', function(d){
-			    	return rscale(d.value);
+			    	return map.rscale(d.value);
 			    })
 			    .attr('opacity',0)
 			    .attr('fill','#4CAF50')
@@ -359,7 +394,7 @@
 				d3.select('#'+d['#adm2+code'])
 					.attr('stroke',function(){
 						if(d['#status']=='Accessible with restriction'){
-							return '#f4a582';
+							return '#FDD835';
 						} else if (d['#status']=='Not Accesible') {
 							return '#b2182b';
 						}
