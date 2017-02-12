@@ -26,6 +26,14 @@
 			map.displacedDim = map.displaced.dimension(function(d) { return d['#date']; });
 			map.refugeeGroup = map.displaced.dimension(function(d) { return d['#adm1+code']; }).group().reduceSum(function(d){return d['#affected+refugees']});
 			map.idpsGroup = map.displaced.dimension(function(d) { return d['#adm1+code']; }).group().reduceSum(function(d){return d['#affected+idps']});
+			
+			var date_sort = function (date1, date2) {
+			  if (date1 > date2) return 1;
+			  if (date1 < date2) return -1;
+			  return 0;
+			};
+
+			map.dates = map.displacedDim.group().top(Infinity).map(function(d){return d.key}).sort(date_sort);
 
 			//accessibility data with date filter
 			map.access = crossfilter(accessible);
@@ -153,6 +161,20 @@
 			  	})
 			  	.attr('class', 'halo');
 
+			 var ticks = d3.svg.axis()
+			  		.scale(map.timeScale)
+			  		.tickFormat('')
+			  		.tickSize(10)
+			  		.tickValues(map.dates);
+
+			var axisTicks = svg.append('g')
+				.attr('transform', 'translate(0,' + height / 2 + ')')
+				.call(ticks);
+
+			axisTicks.selectAll('path').attr('fill', 'none');
+
+			axisTicks.selectAll('line').attr('stroke-width',1).attr('stroke','#999');
+
 			var slider = svg.append('g')
 			  	.attr('class', 'slider')
 			  	.call(map.brush);
@@ -182,11 +204,27 @@
 			var value = map.brush.extent()[0];
 			if (d3.event.sourceEvent) {
 				value = map.timeScale.invert(d3.mouse(this)[0]);
+				value = map.nearestValue(value);
 				map.brush.extent([value, value]);
 			}
 			map.handle.attr('transform', 'translate(' + map.timeScale(value) + ',0)');
 			map.handle.select('text').text(map.formatDate(value));
 			map.update(value);
+		},
+
+		nearestValue: function(date){
+			var nearest = 0;
+			map.dates.forEach(function(d,i){
+				if(d<date){nearest=i}
+			});
+			var prev = map.dates[nearest];
+			var next = map.dates[nearest+1];
+			if(date-prev>next-date){
+				date = next;
+			} else {
+				date = prev;
+			}
+			return date;
 		},
 
 		createLegend: function(){
