@@ -6,6 +6,8 @@
 		isAnimating: false,
 		incidentsColor: '#FF9B00',
 		refugeesColor: '#4CAF50',
+		accessibleColor: '#fae796',
+		notaccessibleColor: '#c84858',
 
 		init: function(adm1,adm2,countries, incidents, displaced, accessible,countrieslabel){
 			//get centroids of adm for refuguee points
@@ -157,7 +159,7 @@
 		},
 
 		resetAnimation: function(reset){
-    		$('#animateBtn').html('Animate graph');
+    		$('#animateBtn').html('Animate map');
     		map.isAnimating = false;
     		if (reset) map.snapshotID = -1;
     		clearInterval(map.timer);
@@ -383,7 +385,7 @@
                 .text( function (d) { return d; });
 
             //accessibility
-			$('#maplegend').append('<input type="checkbox" name="maplayer" id="accessibilitycheck" checked><label for="accessibilitycheck">Accessibility</label><div id="accessibilitycircles"><svg id="accessibilityKey" width="'+keyWidth+'" height="'+(keyHeight+20)+'"><line x1="20" y1="6" x2="50" y2="6" stroke-width="2" stroke="#FDD835"/><text x="60" y="10">Accessible with restriction</text><line x1="20" y1="26" x2="50" y2="26" stroke-width="2" stroke="#B2182B"/><text x="60" y="30">Not accessible</text>');
+			$('#maplegend').append('<input type="checkbox" name="maplayer" id="accessibilitycheck" checked><label for="accessibilitycheck">Accessibility</label><div id="accessibilitycircles"><svg id="accessibilityKey" width="'+keyWidth+'" height="'+(keyHeight+20)+'"><line x1="20" y1="6" x2="50" y2="6" stroke-width="2" stroke="'+map.accessibleColor+'"/><text x="60" y="10">Accessible with restriction</text><line x1="20" y1="26" x2="50" y2="26" stroke-width="2" stroke="'+map.notaccessibleColor+'"/><text x="60" y="30">Not accessible</text>');
         	$('#accessibilitycheck').change(function(e){
 			 	if ($(e.target).is(':checked')) {
 			 		$('#adm2layer').attr('display', 'block');
@@ -507,9 +509,9 @@
 				d3.select('#'+d['#adm2+code'])
 					.attr('stroke',function(){
 						if(d['#status']=='Accessible with restriction'){
-							return '#FDD835';
+							return map.accessibleColor;
 						} else if (d['#status']=='Not Accesible') {
-							return '#b2182b';
+							return map.notaccessibleColor;
 						}
 					}).attr('stroke-opacity',1);
 			});
