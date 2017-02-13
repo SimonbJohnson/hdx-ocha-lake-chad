@@ -2,10 +2,13 @@
 	var map = window.map = {
 		formatDate: d3.time.format("%d %b %Y"),
 		parseDate: d3.time.format("%m/%d/%Y").parse,
+		snapshotID: 0,
+		isAnimating: false,
+		incidentsColor: '#FF9B00',
+		refugeesColor: '#4CAF50',
 
-		init: function(adm1,adm2,countries, incidents, displaced, accessible){
+		init: function(adm1,adm2,countries, incidents, displaced, accessible,countrieslabel){
 			//get centroids of adm for refuguee points
-
 			map.refugeeLocations = {};
 
 			adm1.features.forEach(function(f){
@@ -65,10 +68,21 @@
         		.attr('stroke-width',2)
         		.attr('stroke','#cccccc')
 		      	.attr('id',function(d){
-		        	return d.properties.CNTRY_NAME;
+		        	return d.properties.NAME;
 		      	});
 
-		    var g = svg.append('g');
+		    //create country labels
+		    var country = g.selectAll('text')
+		        .data(countrieslabel).enter()
+		        .append('text')
+		        .attr('class', 'label')
+		        .attr("transform", function(d) {
+		          return "translate(" + map.projection([d.coordinates[0], d.coordinates[1]]) + ")";
+		        })
+		        .text(function(d){ return d.country; });
+
+
+		    var g = svg.append('g').attr('id','adm1layer');
 
 		    g.selectAll('path')
 		     	.data(adm1.features).enter()
@@ -82,7 +96,7 @@
 		        	return d.properties.Rowcacode1;
 		      	});
 
-			var g = svg.append('g');
+			var g = svg.append('g').attr('id','adm2layer');
 
 		    g.selectAll('path')
 		     	.data(adm2.features).enter()
@@ -111,15 +125,51 @@
 		    //create timeline slider
 		    map.createTimeline(map.minDate);
 		    map.createLegend();
+
+		    //animate button click handler
+		    $('#animateBtn').on('click', function(){
+		    	if (!map.isAnimating){
+        			$(this).html('Pause animation');
+        			map.isAnimating = true;
+        			map.timer = setInterval(function(){ map.animate()}, 800 );
+        		}
+        		else {
+        			map.resetAnimation(false);
+        		}
+		    })
+		},
+
+		animate: function(){
+			if (map.snapshotID<map.dates.length-1){
+				//get next snapshot date
+				map.snapshotID++;
+				var value = map.dates[map.snapshotID];
+
+				//reposition slider handle
+				map.handle.attr('transform', 'translate(' + map.timeScale(value) + ',0)');
+				map.handle.select('text').text(map.formatDate(value));
+
+				map.update(value);
+			}
+			else{
+    			map.resetAnimation(true);
+			}
+		},
+
+		resetAnimation: function(reset){
+    		$('#animateBtn').html('Animate graph');
+    		map.isAnimating = false;
+    		if (reset) map.snapshotID = -1;
+    		clearInterval(map.timer);
 		},
 
 		createTimeline: function(date){
 			// parameters
 			var margin = {
 			    top: 10,
-			    right: 35,
+			    right: 40,
 			    bottom: 10,
-			    left: 25
+			    left: 30
 			},
 			width = $('#timeline').width() - margin.left - margin.right,
 			height = 80 - margin.bottom - margin.top;
@@ -210,6 +260,8 @@
 			map.handle.attr('transform', 'translate(' + map.timeScale(value) + ',0)');
 			map.handle.select('text').text(map.formatDate(value));
 			map.update(value);
+
+			map.snapshotID = map.getSnapshotID(value);
 		},
 
 		nearestValue: function(date){
@@ -227,10 +279,22 @@
 			return date;
 		},
 
-		createLegend: function(){
-			var layers = [{id:'incidentslayer',name:'Incidents',color:'#FF9B00'}, {id:'refugeeslayer',name:'Refugees',color:'#4CAF50'}];
-			$('#maplegend').append('<input type="checkbox" name="maplayer" id="incidentscheck" checked><label for="incidentscheck">Incidents</label> <svg width="14" height="12"><circle cx="6" cy="6" r="6" fill="#FF9B00" /></svg><br />');
+		getSnapshotID: function(date){
+			for (var i=0;i<map.dates.length;i++){
+				if (date==map.dates[i]){
+					return i;
+				}
+			}
+		},
 
+		createLegend: function(){
+			var keyWidth = $('#maplegend').width();
+			var keyHeight = 25;
+			var layers = [{id:'incidentslayer', name:'Incidents', color:map.incidentsColor}, 
+						  {id:'refugeeslayer', name:'Refugees', color:map.refugeesColor}];
+			
+			//incidents
+			$('#maplegend').append('<input type="checkbox" name="maplayer" id="incidentscheck" checked><label for="incidentscheck">Incidents</label><div id="incidentcircles"><svg width="'+keyWidth+'" height="'+keyHeight+'"><circle cx="30" cy="6" r="6" fill="'+map.incidentsColor+'" /></svg></div>');
         	$('#incidentscheck').change(function(e){
 			 	if ($(e.target).is(':checked')) {
 			 		$('#incidentslayer').attr('display', 'block')
@@ -240,8 +304,8 @@
 			 	}
 			});
 
+        	//refugees
 			$('#maplegend').append('<input type="checkbox" name="maplayer" id="refugeecheck" checked><label for="refugeecheck">Refugees</label><div id="refcircles"></div>')
-		
 		    $('#refugeecheck').change(function(e){
 			 	if ($(e.target).is(':checked')) {
 			 		$('#refugeeslayer').attr('display', 'block')
@@ -254,31 +318,80 @@
 			var refdata = [1000,10000,50000];
 
 			var svg = d3.select('#refcircles').append('svg')
-	        	.attr('width', 80)
-	        	.attr('height', 85)
+	        	.attr('width', keyWidth)
+	        	.attr('height', keyHeight+10)
 
 			svg.selectAll('circle')
 				.data(refdata).enter()
 				.append('circle')
-				.attr('cx',function(d){
-					return 20
+				.attr('cx',function(d,i){
+					return i*(50+map.rscale(d))+25
 				})
 				.attr('cy',function(d,i){
-					return i*30+10;
+					return 15;
 				})
 			    .attr('r', function(d){
 			    	return map.rscale(d);
 			    })
-			    .attr('opacity',1)
-			    .attr('fill','#4CAF50')
+			    .attr('fill', map.refugeesColor)
 
 			svg.selectAll('text')
 				.data(refdata).enter()
 				.append('text')
-				.attr('x', function(d) { return 40; })
-                .attr("y", function(d,i) { return i*30+15; })
-                .text( function (d) { return d; })
+				.attr('x', function(d,i) { return i*(50+map.rscale(d))+30+map.rscale(d); })
+                .attr("y", function(d,i) { return 20; })
+                .text( function (d) { return d; });
 
+
+            //displaced
+			$('#maplegend').append('<input type="checkbox" name="maplayer" id="displacedcheck" checked><label for="displacedcheck">Displaced</label><div id="displacedcircles"></div>')
+		    $('#displacedcheck').change(function(e){
+			 	if ($(e.target).is(':checked')) {
+			 		$('#adm1layer').attr('display', 'block');
+			 	}
+			 	else{
+			 		$('#adm1layer').attr('display', 'none');
+			 	}
+			});
+
+			var displacedcolors = ['#fff7fb','#ece7f2','#d0d1e6','#a6bddb'];
+			var displaceddata = [1000,10000,100000,1000000]
+
+			var svg = d3.select('#displacedcircles').append('svg')
+	        	.attr('width', keyWidth)
+	        	.attr('height', keyHeight+10)
+
+			svg.selectAll('circle')
+				.data(displaceddata).enter()
+				.append('circle')
+				.attr('cx',function(d,i){
+					return i*65+25
+				})
+				.attr('cy',function(d,i){
+					return 15;
+				})
+			    .attr('r', function(d){
+			    	return 6;
+			    })
+			    .attr('fill', function(d,i){ return displacedcolors[i]; });
+
+			svg.selectAll('text')
+				.data(displaceddata).enter()
+				.append('text')
+				.attr('x', function(d,i) { return i*65+35; })
+                .attr('y', function(d,i) { return 20; })
+                .text( function (d) { return d; });
+
+            //accessibility
+			$('#maplegend').append('<input type="checkbox" name="maplayer" id="accessibilitycheck" checked><label for="accessibilitycheck">Accessibility</label><div id="accessibilitycircles"><svg id="accessibilityKey" width="'+keyWidth+'" height="'+(keyHeight+20)+'"><line x1="20" y1="6" x2="50" y2="6" stroke-width="2" stroke="#FDD835"/><text x="60" y="10">Accessible with restriction</text><line x1="20" y1="26" x2="50" y2="26" stroke-width="2" stroke="#B2182B"/><text x="60" y="30">Not accessible</text>');
+        	$('#accessibilitycheck').change(function(e){
+			 	if ($(e.target).is(':checked')) {
+			 		$('#adm2layer').attr('display', 'block');
+			 	}
+			 	else{
+			 		$('#adm2layer').attr('display', 'none');
+			 	}
+			});
 		},
 
 		// all update functions
@@ -286,7 +399,7 @@
 			map.updateIncidents(date);
 			map.updateRefugees(date);
 			map.updateIDPs(date);
-			map.updateAccessiblity(date);
+			map.updateAccessibility(date);
 		},
 
 		updateIncidents: function(date){
@@ -309,7 +422,7 @@
 				})
 			    .attr('r', 4)
 			    .attr('opacity',0)
-			    .attr('fill','#FF9B00')
+			    .attr('fill',map.incidentsColor)
 			    .attr('class','incidents');
 
 			circles.transition().attr('opacity',0.85);
@@ -355,7 +468,7 @@
 			    	return map.rscale(d.value);
 			    })
 			    .attr('opacity',0)
-			    .attr('fill','#4CAF50')
+			    .attr('fill',map.refugeesColor)
 			    .attr('class','refugees');
 
 			circles.transition().attr('opacity',0.85);
@@ -384,7 +497,7 @@
 			});
 		},
 
-		updateAccessiblity: function(date){
+		updateAccessibility: function(date){
 			d3.selectAll('.adm2').attr('stroke','#cccccc').attr('stroke-opacity',0);
 			map.accessDim.filter();
 			var data = map.accessDim.filter(date).top(Infinity);

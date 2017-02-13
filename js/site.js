@@ -27,17 +27,17 @@ function hxlProxyToJSON(input){
 }
 
 function parseDates(tags,data){
-    var dateFormat = d3.time.format("%Y-%m-%d").parse;
+    var parseDateFormat = d3.time.format("%Y-%m-%d").parse;
     data.forEach(function(d){
         tags.forEach(function(t){
-            d[t] = dateFormat(d[t]);
+            d[t] = parseDateFormat(d[t]);
         });
     });
     return data;
 }
 
-function generateMap(incidents,refugees,accessible,adm1,adm2,countries){
-    map.init(adm1,adm2,countries,incidents,refugees, accessible);
+function generateMap(incidents,refugees,accessible,adm1,adm2,countries,countrieslabel){
+    map.init(adm1,adm2,countries,incidents,refugees, accessible, countrieslabel);
 }
 
 function generateKeyStats(data){
@@ -206,6 +206,11 @@ function generateFoodInsecureGraph(data){
                 }
             }
         },
+        tooltip: {
+            format: {
+                title: function (d) { return dateFormat(d); }
+            }
+        },
         legend: { hide: true }
     });
 }
@@ -300,10 +305,15 @@ function generateDisplacedGraph(data){
             y: {
                 tick: {
                     count: 5,
-                    format: d3.format('.2s')
+                    format: numFormat
                 },
                 min: 0,
                 padding: { bottom: 0 }
+            }
+        },
+        tooltip: {
+            format: {
+                title: function (d) { return dateFormat(d); }
             }
         },
         legend: { hide: true }
@@ -312,6 +322,7 @@ function generateDisplacedGraph(data){
 
 
 var numFormat = function(d){return d3.format('.2s')(d).replace('G','B')};
+var dateFormat = d3.time.format("%d %b %Y");
 
 var keyStatsCall = $.ajax({ 
     type: 'GET', 
@@ -367,6 +378,12 @@ var countriesCall = $.ajax({
     dataType: 'json',
 });
 
+var countrieslabelCall = $.ajax({ 
+    type: 'GET', 
+    url: 'data/countries.json',
+    dataType: 'json',
+});
+
 $.when(keyStatsCall).then(function(keyStatsArgs){
     var data = parseDates(['#date'],(hxlProxyToJSON(keyStatsArgs)));
     generateKeyStats(data);
@@ -388,12 +405,13 @@ $.when(refugeesCall).then(function(refugeesArgs){
     generateDisplacedGraph(data);
 });
 
-$.when(incidentsCall,refugeesCall,accessibleCall,adm1Call,adm2Call,countriesCall).then(function(incidentsArgs,refugeesArgs,accessibleArgs,adm1Args,adm2Args,countriesArgs){
+$.when(incidentsCall,refugeesCall,accessibleCall,adm1Call,adm2Call,countriesCall,countrieslabelCall).then(function(incidentsArgs,refugeesArgs,accessibleArgs,adm1Args,adm2Args,countriesArgs,countrieslabelArgs){
     var incidents = parseDates(['#date'],(hxlProxyToJSON(incidentsArgs[0])));
     var refugees = parseDates(['#date'],(hxlProxyToJSON(refugeesArgs[0])));
     var accessible = parseDates(['#date'],(hxlProxyToJSON(accessibleArgs[0])));
     var adm1 = topojson.feature(adm1Args[0],adm1Args[0].objects.lake_chad_adm1);
     var adm2 = topojson.feature(adm2Args[0],adm2Args[0].objects.lake_chad_adm2);
     var countries = topojson.feature(countriesArgs[0],countriesArgs[0].objects.lake_chad_countries);
-    generateMap(incidents,refugees,accessible,adm1,adm2,countries);
+    var countrieslabel = countrieslabelArgs[0].countries;
+    generateMap(incidents,refugees,accessible,adm1,adm2,countries,countrieslabel);
 });

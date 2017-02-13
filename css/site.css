@@ -35,19 +35,33 @@ p{
 	padding-left: 10px;
 }
 
-#controlslayer{
-	text-align: center;
+#controlslayer > div{
+	padding-top: 20px;
+}
+#controlslayer #timeline{
+	padding-top: 0;
+}
+#controlslayer p{
+	color: #999;
+}
+
+.label{
+	fill: #999;
+	font-weight: normal;
 }
 
 /* map legend */
-#maplegend li {
+#maplegend li{
 	list-style-type: none;
 }
-#maplegend input {
+#maplegend input{
 	margin-right: 10px;
 }
-#maplegend label {
+#maplegend label{
 	font-weight: normal;
+}
+#maplegend > div {
+	font-size: 12px;
 }
 
 
@@ -76,5 +90,5 @@ p{
 .slider .handle text {
   fill: #999;
   text-align: center;
-  font-size: 12px;
+  font-size: 10px;
 }
