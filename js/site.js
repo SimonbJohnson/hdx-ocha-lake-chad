@@ -213,6 +213,7 @@ function generateFoodInsecureGraph(data){
         },
         legend: { hide: true }
     });
+    $('#foodinsecureChart').data('c3-chart', chart);
 }
 
 function generateIADGraph(data){
@@ -268,6 +269,7 @@ function generateIADGraph(data){
             }
         }
     });
+    $('#incidentChart').data('c3-chart', chart);
 }
 
 function generateDisplacedGraph(data){
@@ -318,6 +320,7 @@ function generateDisplacedGraph(data){
         },
         legend: { hide: true }
     });
+    $('#displacedChart').data('c3-chart', chart);
 }
 
 

@@ -160,6 +160,8 @@
 
 		resetAnimation: function(reset){
     		$('#animateBtn').html('Animate map');
+    		$('#foodinsecureChart').data('c3-chart').tooltip.hide();
+    		$('#displacedChart').data('c3-chart').tooltip.hide();
     		map.isAnimating = false;
     		if (reset) map.snapshotID = -1;
     		clearInterval(map.timer);
@@ -188,7 +190,7 @@
 			map.brush = d3.svg.brush()
 			  	.x(map.timeScale)
 			  	.extent([startingValue, startingValue])
-			  	.on('brush', map.brushed);
+			  	.on('brushend', map.brushed);
 
 			var svg = d3.select('#timeline').append('svg')
 			  	.attr('width', width + margin.left + margin.right)
@@ -344,7 +346,6 @@
                 .attr("y", function(d,i) { return 20; })
                 .text( function (d) { return d; });
 
-
             //displaced
 			$('#maplegend').append('<input type="checkbox" name="maplayer" id="displacedcheck" checked><label for="displacedcheck">Displaced</label><div id="displacedcircles"></div>')
 		    $('#displacedcheck').change(function(e){
@@ -357,7 +358,14 @@
 			});
 
 			var displacedcolors = ['#fff7fb','#ece7f2','#d0d1e6','#a6bddb'];
-			var displaceddata = [1000,10000,100000,1000000]
+			var displaceddata = [1000,10000,100000,1000000];
+
+	        d3.select('#maplegend').append('rect')
+	            .attr('x1', 0)
+	            .attr('y1', 0)
+	            .attr('width', keyWidth)
+	            .attr('height', keyHeight)
+	            .style('fill', 'url(#gradient)');
 
 			var svg = d3.select('#displacedcircles').append('svg')
 	        	.attr('width', keyWidth)
@@ -384,16 +392,17 @@
                 .attr('y', function(d,i) { return 20; })
                 .text( function (d) { return d; });
 
+
             //accessibility
-			$('#maplegend').append('<input type="checkbox" name="maplayer" id="accessibilitycheck" checked><label for="accessibilitycheck">Accessibility</label><div id="accessibilitycircles"><svg id="accessibilityKey" width="'+keyWidth+'" height="'+(keyHeight+20)+'"><line x1="20" y1="6" x2="50" y2="6" stroke-width="2" stroke="'+map.accessibleColor+'"/><text x="60" y="10">Accessible with restriction</text><line x1="20" y1="26" x2="50" y2="26" stroke-width="2" stroke="'+map.notaccessibleColor+'"/><text x="60" y="30">Not accessible</text>');
-        	$('#accessibilitycheck').change(function(e){
-			 	if ($(e.target).is(':checked')) {
-			 		$('#adm2layer').attr('display', 'block');
-			 	}
-			 	else{
-			 		$('#adm2layer').attr('display', 'none');
-			 	}
-			});
+			// $('#maplegend').append('<input type="checkbox" name="maplayer" id="accessibilitycheck" checked><label for="accessibilitycheck">Accessibility</label><div id="accessibilitycircles"><svg id="accessibilityKey" width="'+keyWidth+'" height="'+(keyHeight+20)+'"><line x1="20" y1="6" x2="50" y2="6" stroke-width="2" stroke="'+map.accessibleColor+'"/><text x="60" y="10">Accessible with restriction</text><line x1="20" y1="26" x2="50" y2="26" stroke-width="2" stroke="'+map.notaccessibleColor+'"/><text x="60" y="30">Not accessible</text>');
+   //      	$('#accessibilitycheck').change(function(e){
+			//  	if ($(e.target).is(':checked')) {
+			//  		$('#adm2layer').attr('display', 'block');
+			//  	}
+			//  	else{
+			//  		$('#adm2layer').attr('display', 'none');
+			//  	}
+			// });
 		},
 
 		// all update functions
@@ -401,7 +410,20 @@
 			map.updateIncidents(date);
 			map.updateRefugees(date);
 			map.updateIDPs(date);
-			map.updateAccessibility(date);
+			//map.updateAccessibility(date);
+
+			//show corresponding snapshot date on charts, make sure data exists before trying to show tooltip
+			var charts = ['#displacedChart','#foodinsecureChart'];
+			for (var i=0;i<charts.length;i++){
+				var values = $(charts[i]).data('c3-chart').internal.data.targets[0].values;
+				$(charts[i]).data('c3-chart').tooltip.hide();
+				for (var j=0;j<values.length;j++){
+					if (values[j].x.getTime() == date.getTime()){
+						$(charts[i]).data('c3-chart').tooltip.show({ x: date });
+						break;
+					}
+				}
+			}
 		},
 
 		updateIncidents: function(date){
@@ -515,7 +537,6 @@
 						}
 					}).attr('stroke-opacity',1);
 			});
-
 		}		
 	}
 })();

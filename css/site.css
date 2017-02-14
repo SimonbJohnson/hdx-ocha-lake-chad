@@ -26,6 +26,9 @@ p{
 .keyfigures h4{
 	min-height: 26px;
 }
+.keyfigures h4.header{
+	min-height: auto;
+}
 .statsNum{
 	font-size: 20px;
 	vertical-align: top;
@@ -63,7 +66,6 @@ p{
 #maplegend > div {
 	font-size: 12px;
 }
-
 
 /* timeline slider styles */
 .axis {
