@@ -142,6 +142,8 @@
 		},
 
 		animate: function(){
+			console.log(map);
+			console.log(map.snapshotID);
 			if (map.snapshotID<map.dates.length-1){
 				//get next snapshot date
 				map.snapshotID++;
