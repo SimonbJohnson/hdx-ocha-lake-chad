@@ -11,13 +11,14 @@
 		init: function(adm1,adm2,countries, incidents, displaced, accessible,countrieslabel){
 			//get centroids of adm for refuguee points
 			map.refugeeLocations = {};
-
+			map.names = {};
 			adm1.features.forEach(function(f){
 				var minx = d3.min(f.geometry.coordinates[0],function(d){return d[0]});
 				var maxx = d3.max(f.geometry.coordinates[0],function(d){return d[0]});
 				var miny = d3.min(f.geometry.coordinates[0],function(d){return d[1]});
 				var maxy = d3.max(f.geometry.coordinates[0],function(d){return d[1]});
 				map.refugeeLocations[f.properties.Rowcacode1] = [(minx+maxx)/2,(miny+maxy)/2];
+				map.names[f.properties.Rowcacode1] = f.properties.ADM1_NAME
 			});
 
 			//incident points with date filter
@@ -527,7 +528,7 @@
 		            maptip
 		                .classed('hidden', false)
 		                .attr('style', 'left:'+(mouse[0]+20)+'px;top:'+(mouse[1]+20)+'px')
-		                .html(d.key+': '+d3.format('.2s')(d.value))
+		                .html(map.names[d.key]+': '+d3.format('.2s')(d.value))
 		        })
 		        .on('mouseout',  function(d,i) {
 		            maptip.classed('hidden', true)
