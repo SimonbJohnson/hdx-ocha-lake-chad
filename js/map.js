@@ -48,7 +48,7 @@
 
 			var width = $('#map').width();
 			var height = 450;
-			var svg = d3.select('#map').append('svg')
+			map.svg = d3.select('#map').append('svg')
 	        	.attr('width', width)
 	        	.attr('height', height)
 
@@ -57,7 +57,7 @@
 		        .scale(width*5)
 		        .translate([width / 2, height / 2]);    
 
-		    var g = svg.append('g');
+		    var g = map.svg.append('g');
 
 		    g.selectAll('path')
 		     	.data(countries.features).enter()
@@ -82,7 +82,7 @@
 		        .text(function(d){ return d.country; });
 
 
-		    var g = svg.append('g').attr('id','adm1layer');
+		    var g = map.svg.append('g').attr('id','adm1layer');
 
 		    g.selectAll('path')
 		     	.data(adm1.features).enter()
@@ -96,7 +96,7 @@
 		        	return d.properties.Rowcacode1;
 		      	});
 
-			var g = svg.append('g').attr('id','adm2layer');
+			var g = map.svg.append('g').attr('id','adm2layer');
 
 		    g.selectAll('path')
 		     	.data(adm2.features).enter()
@@ -112,9 +112,9 @@
 		        	return d.properties.Rowcacode2;
 		      	});
 
-		    var g = svg.append('g').attr('id','incidentslayer');
+		    var g = map.svg.append('g').attr('id','incidentslayer');
 
-		    var g = svg.append('g').attr('id','refugeeslayer');
+		    var g = map.svg.append('g').attr('id','refugeeslayer');
 
 		    //load data for a particular date
 
@@ -368,7 +368,7 @@
 			var svg = d3.select('#displacedcircles').append('svg')
 	        	.attr('width', keyWidth)
 	        	.attr('height', keyHeight+10)
-
+	        	
 			svg.selectAll('circle')
 				.data(displaceddata).enter()
 				.append('circle')
@@ -448,6 +448,20 @@
 			    .attr('class','incidents');
 
 			circles.transition().attr('opacity',0.85);
+
+			//map tooltips
+		    var maptip = d3.select('#map').append('div').attr('class', 'd3-tip map-tip hidden');
+		    circles
+		        .on('mousemove', function(d,i) {
+		            var mouse = d3.mouse(map.svg.node()).map( function(d) { return parseInt(d); } );
+		            maptip
+		                .classed('hidden', false)
+		                .attr('style', 'left:'+(mouse[0]+20)+'px;top:'+(mouse[1]+20)+'px')
+		                .html(map.formatDate(d['#date']) + ' ' + d['#loc'] + ' ' + d['#adm2'])
+		        })
+		        .on('mouseout',  function(d,i) {
+		            maptip.classed('hidden', true)
+		        }); 
 		},
 
 		updateRefugees: function(date){
@@ -494,6 +508,20 @@
 			    .attr('class','refugees');
 
 			circles.transition().attr('opacity',0.85);
+
+			//map tooltips
+		    var maptip = d3.select('#map').append('div').attr('class', 'd3-tip map-tip hidden');
+		    circles
+		        .on('mousemove', function(d,i) {
+		            var mouse = d3.mouse(map.svg.node()).map( function(d) { return parseInt(d); } );
+		            maptip
+		                .classed('hidden', false)
+		                .attr('style', 'left:'+(mouse[0]+20)+'px;top:'+(mouse[1]+20)+'px')
+		                .html(d.key+': '+d3.format('.2s')(d.value))
+		        })
+		        .on('mouseout',  function(d,i) {
+		            maptip.classed('hidden', true)
+		        }); 
 		},
 
 		updateIDPs: function(date){
