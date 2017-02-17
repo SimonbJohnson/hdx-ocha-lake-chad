@@ -6,8 +6,6 @@
 		isAnimating: false,
 		incidentsColor: '#FF9B00',
 		refugeesColor: '#4CAF50',
-		accessibleColor: '#fae796',
-		notaccessibleColor: '#c84858',
 
 		init: function(adm1,adm2,countries, incidents, displaced, accessible,countrieslabel){
 			//get centroids of adm for refuguee points
@@ -142,8 +140,6 @@
 		},
 
 		animate: function(){
-			console.log(map);
-			console.log(map.snapshotID);
 			if (map.snapshotID<map.dates.length-1){
 				//get next snapshot date
 				map.snapshotID++;
@@ -267,7 +263,7 @@
 			map.handle.select('text').text(map.formatDate(value));
 			map.update(value);
 
-			map.snapshotID = map.getSnapshotID(value);
+			map.snapshotID = (map.getSnapshotID(value)!=undefined) ? map.getSnapshotID(value) : 0;
 		},
 
 		nearestValue: function(date){
