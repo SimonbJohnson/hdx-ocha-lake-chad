@@ -182,7 +182,7 @@ function generateFoodInsecureGraph(data){
     }
     var chart = c3.generate({
         bindto: '#foodinsecureChart',
-        size: { height: 175 },
+        size: { height: 150 },
         padding: { right: 20 },
         color: {
           pattern: ['#0066b9']
@@ -233,7 +233,7 @@ function generateIADGraph(data){
 
     var chart = c3.generate({
         bindto: '#incidentChart',
-        size: { height: 175 },
+        size: { height: 150 },
         color: {
           pattern: ['#FF9B00', '#999']
         },
@@ -290,7 +290,7 @@ function generateDisplacedGraph(data){
     }
     var chart = c3.generate({
         bindto: '#displacedChart',
-        size: { height: 175 },
+        size: { height: 150 },
         padding: { right: 20 },
         color: {
           pattern: ['#0066b9']

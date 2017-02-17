@@ -48,7 +48,7 @@
     		map.maxDate = d3.max(displaced,function(d){return (d['#date']);});
 
 			var width = $('#map').width();
-			var height = 450;
+			var height = 500;
 			map.svg = d3.select('#map').append('svg')
 	        	.attr('width', width)
 	        	.attr('height', height)
