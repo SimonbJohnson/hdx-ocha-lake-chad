@@ -85,21 +85,6 @@
 		        })
 		        .text(function(d){ return d.country; });
 
-
-		    var g = map.svg.append('g').attr('id','adm1layer');
-
-		    g.selectAll('path')
-		     	.data(adm1.features).enter()
-		     	.append('path')
-		      	.attr('d', d3.geo.path().projection(map.projection))
-		      	.attr('class','adm1')
-        		.attr('fill', '#ffffff')
-        		.attr('stroke-width',2)
-        		.attr('stroke','#aaaaaa')
-		      	.attr('id',function(d){
-		        	return d.properties.Rowcacode1;
-		      	});
-
 			var g = map.svg.append('g').attr('id','adm2layer');
 
 		    g.selectAll('path')
@@ -114,6 +99,20 @@
         		.attr('stroke','#cccccc')
 		      	.attr('id',function(d){
 		        	return d.properties.Rowcacode2;
+		      	});
+
+		    var g = map.svg.append('g').attr('id','adm1layer');
+
+		    g.selectAll('path')
+		     	.data(adm1.features).enter()
+		     	.append('path')
+		      	.attr('d', d3.geo.path().projection(map.projection))
+		      	.attr('class','adm1')
+        		.attr('fill', '#ffffff')
+        		.attr('stroke-width',2)
+        		.attr('stroke','#aaaaaa')
+		      	.attr('id',function(d){
+		        	return d.properties.Rowcacode1;
 		      	});
 
 		    var g = map.svg.append('g').attr('id','incidentslayer');
@@ -414,7 +413,6 @@
 
 		// all update functions
 		update: function (date){
-			console.log(date);
 			map.updateIncidents(date);
 			map.updateRefugees(date);
 			map.updateIDPs(date);
@@ -554,12 +552,23 @@
 			map.displacedDim.filter(date);
 			var data = map.idpsGroup.top(Infinity);
 
-    		//var max = d3.max(data,function(d){return (d.value);});
+    		//map tooltips
+		    var maptip = d3.select('#map').append('div').attr('class', 'd3-tip map-tip hidden');
 			data.forEach(function(d){
 				if(d.value>0){
 					d3.select('#'+d.key).attr('fill',function(){
 						return color(d.value);
-					});
+					})
+					.on('mousemove', function(){
+			            var mouse = d3.mouse(map.svg.node()).map( function(d) { return parseInt(d); } );
+						maptip
+		                .classed('hidden', false)
+		                .attr('style', 'left:'+(mouse[0]+20)+'px;top:'+(mouse[1]+20)+'px')
+		                .html(map.names[d.key]+': '+d3.format('.2s')(d.value))
+					})
+			        .on('mouseout',  function() {
+			            maptip.classed('hidden', true)
+			        }); 
 				}
 			});
 		},
