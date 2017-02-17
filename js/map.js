@@ -7,6 +7,8 @@
 		animationInterval: 800,
 		incidentsColor: '#FF9B00',
 		refugeesColor: '#4CAF50',
+		displacedColors: ['#deebf7','#c6dbef','#9ecae1','#6baed6','#4292c6','#2171b5'],
+		displacedRange: [1000,10000,100000,1000000],
 
 		init: function(adm1,adm2,countries, incidents, displaced, accessible,countrieslabel){
 			//get centroids of adm for refuguee points
@@ -357,40 +359,44 @@
 			 	}
 			});
 
-			var displacedcolors = ['#fff7fb','#ece7f2','#d0d1e6','#a6bddb'];
-			var displaceddata = [1000,10000,100000,1000000];
 
-	        d3.select('#maplegend').append('rect')
-	            .attr('x1', 0)
-	            .attr('y1', 0)
-	            .attr('width', keyWidth)
-	            .attr('height', keyHeight)
-	            .style('fill', 'url(#gradient)');
+			var svggradient = d3.select('#maplegend').append('svg');
+			var defs = svggradient.append("defs");
+			var linearGradient = defs.append("linearGradient")
+			    .attr("id", "linear-gradient");
 
-			var svg = d3.select('#displacedcircles').append('svg')
-	        	.attr('width', keyWidth)
-	        	.attr('height', keyHeight+10)
-	        	
-			svg.selectAll('circle')
-				.data(displaceddata).enter()
-				.append('circle')
-				.attr('cx',function(d,i){
-					return i*65+25
-				})
-				.attr('cy',function(d,i){
-					return 15;
-				})
-			    .attr('r', function(d){
-			    	return 6;
-			    })
-			    .attr('fill', function(d,i){ return displacedcolors[i]; });
+			linearGradient
+			    .attr("x1", "0%")
+			    .attr("y1", "0%")
+			    .attr("x2", "100%")
+			    .attr("y2", "0%");
 
-			svg.selectAll('text')
-				.data(displaceddata).enter()
-				.append('text')
-				.attr('x', function(d,i) { return i*65+35; })
-                .attr('y', function(d,i) { return 20; })
-                .text( function (d) { return d; });
+			var colorScale = d3.scale.linear()
+			    .range(map.displacedColors);
+
+			linearGradient.selectAll("stop") 
+			    .data( colorScale.range() )                  
+			    .enter().append("stop")
+			    .attr("offset", function(d,i) { return i/(colorScale.range().length-1); })
+			    .attr("stop-color", function(d) { return d; });
+
+			 svggradient.append("rect")
+				.attr("width", $('#maplegend').width()-30)
+				.attr("height", 20)
+				.attr('x', 20)
+				.style("fill", "url(#linear-gradient)");
+
+			svggradient.append("text")
+				.attr('x', 20)
+				.attr('y', 35)
+				.attr('class', 'small')
+				.text( map.displacedRange[0] );
+
+			svggradient.append("text")
+				.attr('x', $('#maplegend').width()-50)
+				.attr('y', 35)
+				.attr('class', 'small')
+				.text( map.displacedRange[map.displacedRange.length-1] );
 
 
             //accessibility
@@ -536,23 +542,21 @@
 		},
 
 		updateIDPs: function(date){
-			d3.selectAll('.adm1').attr('fill','#f1eef6');
-			var colors = ['#ffffff','#fff7fb','#ece7f2','#d0d1e6','#a6bddb'];
-			var labels = [1000,10000,100000,1000000]
+			d3.selectAll('.adm1').attr('fill','#f7fbff');
+			
+			color = d3.scale.quantize();
+			color.domain([0, map.displacedRange[map.displacedRange.length-1]]);
+			color.range(map.displacedColors);
+
 			map.displacedDim.filter();
 			map.displacedDim.filter(date);
 			var data = map.idpsGroup.top(Infinity);
 
+    		//var max = d3.max(data,function(d){return (d.value);});
 			data.forEach(function(d){
 				if(d.value>0){
 					d3.select('#'+d.key).attr('fill',function(){
-						var count = 0;
-						labels.forEach(function(l){
-							if(l<d.value){
-								count++;
-							}
-						});
-						return colors[count];
+						return color(d.value);
 					});
 				}
 			});
