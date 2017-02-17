@@ -4,6 +4,7 @@
 		parseDate: d3.time.format("%m/%d/%Y").parse,
 		snapshotID: 0,
 		isAnimating: false,
+		animationInterval: 800,
 		incidentsColor: '#FF9B00',
 		refugeesColor: '#4CAF50',
 
@@ -131,7 +132,7 @@
 		    	if (!map.isAnimating){
         			$(this).html('Pause animation');
         			map.isAnimating = true;
-        			map.timer = setInterval(function(){ map.animate()}, 800 );
+        			map.timer = setInterval(function(){ map.animate()}, map.animationInterval );
         		}
         		else {
         			map.resetAnimation(false);
@@ -263,7 +264,7 @@
 			map.handle.select('text').text(map.formatDate(value));
 			map.update(value);
 
-			map.snapshotID = (map.getSnapshotID(value)!=undefined) ? map.getSnapshotID(value) : 0;
+			map.snapshotID = map.getSnapshotID(value);
 		},
 
 		nearestValue: function(date){
@@ -283,7 +284,7 @@
 
 		getSnapshotID: function(date){
 			for (var i=0;i<map.dates.length;i++){
-				if (date==map.dates[i]){
+				if (date.getTime()==map.dates[i].getTime()){
 					return i;
 				}
 			}
@@ -447,7 +448,7 @@
 			    .attr('fill',map.incidentsColor)
 			    .attr('class','incidents');
 
-			circles.transition().attr('opacity',0.85);
+			circles.transition().duration(map.animationInterval/2).attr('opacity',0.85);
 
 			//map tooltips
 		    var maptip = d3.select('#map').append('div').attr('class', 'd3-tip map-tip hidden');
@@ -507,7 +508,7 @@
 			    .attr('fill',map.refugeesColor)
 			    .attr('class','refugees');
 
-			circles.transition().attr('opacity',0.85);
+			circles.transition().duration(map.animationInterval/2).attr('opacity',0.85);
 
 			//map tooltips
 		    var maptip = d3.select('#map').append('div').attr('class', 'd3-tip map-tip hidden');
