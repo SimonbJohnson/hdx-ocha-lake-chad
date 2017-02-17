@@ -412,14 +412,23 @@
 			//map.updateAccessibility(date);
 
 			//show corresponding snapshot date on charts, make sure data exists before trying to show tooltip
-			var charts = ['#displacedChart','#foodinsecureChart'];
+			var formatDate = d3.time.format("%m %Y");
+			var charts = ['#displacedChart','#foodinsecureChart','#incidentChart'];
 			for (var i=0;i<charts.length;i++){
 				var values = $(charts[i]).data('c3-chart').internal.data.targets[0].values;
 				$(charts[i]).data('c3-chart').tooltip.hide();
 				for (var j=0;j<values.length;j++){
-					if (values[j].x.getTime() == date.getTime()){
-						$(charts[i]).data('c3-chart').tooltip.show({ x: date });
-						break;
+					if (charts[i]=='#incidentChart') { 
+						if (formatDate(values[j].x)==formatDate(date)){
+							$(charts[i]).data('c3-chart').tooltip.show({ x: values[j].x });
+							break;
+						}
+					}
+					else{
+						if (values[j].x.getTime() == date.getTime()){
+							$(charts[i]).data('c3-chart').tooltip.show({ x: values[j].x });
+							break;
+						}
 					}
 				}
 			}

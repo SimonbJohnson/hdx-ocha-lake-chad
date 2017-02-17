@@ -48,6 +48,10 @@ p{
 	color: #999;
 }
 
+#mainviz{
+	margin-bottom: 20px;
+}
+
 .label{
 	fill: #999;
 	font-weight: normal;
