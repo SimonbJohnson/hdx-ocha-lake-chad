@@ -164,6 +164,7 @@
     		$('#animateBtn').html('Animate map');
     		$('#foodinsecureChart').data('c3-chart').tooltip.hide();
     		$('#displacedChart').data('c3-chart').tooltip.hide();
+    		$('#incidentChart').data('c3-chart').tooltip.hide();
     		map.isAnimating = false;
     		if (reset) map.snapshotID = -1;
     		clearInterval(map.timer);
@@ -172,7 +173,7 @@
 		createTimeline: function(date){
 			// parameters
 			var margin = {
-			    top: 10,
+			    top: 0,
 			    right: 40,
 			    bottom: 10,
 			    left: 30
@@ -352,10 +353,10 @@
 			$('#maplegend').append('<input type="checkbox" name="maplayer" id="displacedcheck" checked><label for="displacedcheck">Displaced</label><div id="displacedcircles"></div>')
 		    $('#displacedcheck').change(function(e){
 			 	if ($(e.target).is(':checked')) {
-			 		$('#adm1layer').attr('display', 'block');
+			 		map.updateIDPs(map.brush.extent()[0]);
 			 	}
 			 	else{
-			 		$('#adm1layer').attr('display', 'none');
+					d3.selectAll('.adm1').attr('fill','#f7fbff');
 			 	}
 			});
 
@@ -380,7 +381,7 @@
 			    .attr("offset", function(d,i) { return i/(colorScale.range().length-1); })
 			    .attr("stop-color", function(d) { return d; });
 
-			 svggradient.append("rect")
+			svggradient.append("rect")
 				.attr("width", $('#maplegend').width()-30)
 				.attr("height", 20)
 				.attr('x', 20)
@@ -413,6 +414,7 @@
 
 		// all update functions
 		update: function (date){
+			console.log(date);
 			map.updateIncidents(date);
 			map.updateRefugees(date);
 			map.updateIDPs(date);

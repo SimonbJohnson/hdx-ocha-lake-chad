@@ -41,9 +41,6 @@ p{
 	padding-left: 10px;
 }
 
-#controlslayer > div{
-	padding-top: 20px;
-}
 #controlslayer #timeline{
 	padding-top: 0;
 }
@@ -58,6 +55,10 @@ p{
 .label{
 	fill: #999;
 	font-weight: normal;
+}
+
+#animateBtn{
+	font-size: 13px;
 }
 
 /* map tooltips */
@@ -75,6 +76,9 @@ p{
 .hidden { 
   display: none; 
 }
+.topmargin{
+	margin-top: 20px;
+}
 
 /* map legend */
 #maplegend li{
@@ -91,6 +95,9 @@ p{
 }
 
 /* timeline slider styles */
+#timeline{
+	width: 365px;
+}
 .axis {
   fill: #999;
   font-size: 10px;
