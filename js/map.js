@@ -411,6 +411,20 @@
 			// });
 		},
 
+		showMapTooltip: function(d, maptip, text){
+			if (!map.isAnimating){
+				var mouse = d3.mouse(map.svg.node()).map( function(d) { return parseInt(d); } );
+		            maptip
+		                .classed('hidden', false)
+		                .attr('style', 'left:'+(mouse[0]+20)+'px;top:'+(mouse[1]+20)+'px')
+		                .html(text)
+	        }
+		},
+
+		hideMapTooltip: function(maptip){
+		    maptip.classed('hidden', true)
+		},
+
 		// all update functions
 		update: function (date){
 			map.updateIncidents(date);
@@ -469,15 +483,11 @@
 			//map tooltips
 		    var maptip = d3.select('#map').append('div').attr('class', 'd3-tip map-tip hidden');
 		    circles
-		        .on('mousemove', function(d,i) {
-		            var mouse = d3.mouse(map.svg.node()).map( function(d) { return parseInt(d); } );
-		            maptip
-		                .classed('hidden', false)
-		                .attr('style', 'left:'+(mouse[0]+20)+'px;top:'+(mouse[1]+20)+'px')
-		                .html(map.formatDate(d['#date']) + ' ' + d['#loc'] + ' ' + d['#adm2'])
+		        .on('mousemove', function(d) {
+		            map.showMapTooltip(d, maptip, '<h4>Incidents</h4>'+map.formatDate(d['#date']) + ': ' + d['#loc'] + ' ' + d['#adm2']);
 		        })
-		        .on('mouseout',  function(d,i) {
-		            maptip.classed('hidden', true)
+		        .on('mouseout',  function() {
+		            map.hideMapTooltip(maptip);
 		        }); 
 		},
 
@@ -529,15 +539,11 @@
 			//map tooltips
 		    var maptip = d3.select('#map').append('div').attr('class', 'd3-tip map-tip hidden');
 		    circles
-		        .on('mousemove', function(d,i) {
-		            var mouse = d3.mouse(map.svg.node()).map( function(d) { return parseInt(d); } );
-		            maptip
-		                .classed('hidden', false)
-		                .attr('style', 'left:'+(mouse[0]+20)+'px;top:'+(mouse[1]+20)+'px')
-		                .html(map.names[d.key]+': '+d3.format('.2s')(d.value))
+		        .on('mousemove', function(d) {
+		            map.showMapTooltip(d, maptip, '<h4>Refugees</h4>'+map.names[d.key]+': '+d3.format('.2s')(d.value));
 		        })
-		        .on('mouseout',  function(d,i) {
-		            maptip.classed('hidden', true)
+		        .on('mouseout',  function() {
+		            map.hideMapTooltip(maptip);
 		        }); 
 		},
 
@@ -560,14 +566,10 @@
 						return color(d.value);
 					})
 					.on('mousemove', function(){
-			            var mouse = d3.mouse(map.svg.node()).map( function(d) { return parseInt(d); } );
-						maptip
-		                .classed('hidden', false)
-		                .attr('style', 'left:'+(mouse[0]+20)+'px;top:'+(mouse[1]+20)+'px')
-		                .html(map.names[d.key]+': '+d3.format('.2s')(d.value))
+			            map.showMapTooltip(d, maptip, '<h4>People Displaced</h4>'+map.names[d.key]+': '+d3.format('.2s')(d.value));
 					})
 			        .on('mouseout',  function() {
-			            maptip.classed('hidden', true)
+		            map.hideMapTooltip(maptip);
 			        }); 
 				}
 			});

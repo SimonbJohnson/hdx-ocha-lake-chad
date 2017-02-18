@@ -73,6 +73,9 @@ p{
 .map-tip{
   position: absolute;
 }
+.map-tip h4{
+	margin: 0;
+}
 .hidden { 
   display: none; 
 }
@@ -105,20 +108,17 @@ p{
   -moz-user-select: none;
   user-select: none;
 }
-
 .axis .halo {
   stroke: #999;
   stroke-width: 4px;
   stroke-linecap: square;
 }
-
 .slider .handle path {
   stroke: black;
   stroke-width: 3px;
   stroke-linecap: round;
   pointer-events: none;
 }
-
 .slider .handle text {
   fill: #999;
   text-align: center;
