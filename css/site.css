@@ -61,6 +61,25 @@ p{
 	font-size: 13px;
 }
 
+#map .zoomBtn{
+    background-color: #FFF;
+    border: 1px solid #CCC;
+    box-shadow: 0 0 5px rgba(0,0,0,0.2);
+    bottom: 10px;
+    cursor: pointer;
+    font-size: 20px;
+    font-weight: 700;
+    height: 25px;
+    line-height: 16px;
+    position: absolute;
+    left: 25px;
+    text-align: center;
+    width: 25px;
+}
+#map #zoom-in{
+    bottom: 34px;
+}
+
 /* map tooltips */
 .d3-tip {
     padding:5px;

@@ -52,9 +52,11 @@
 
 			var width = $('#map').width();
 			var height = 500;
+    		map.zoom = d3.behavior.zoom().scaleExtent([1, 8]).on('zoom', map.zoomMap);
 			map.svg = d3.select('#map').append('svg')
 	        	.attr('width', width)
 	        	.attr('height', height)
+        		.call(map.zoom);
 
 		    map.projection = d3.geo.mercator()
 		        .center([13, 13])
@@ -140,6 +142,22 @@
         			map.resetAnimation(false);
         		}
 		    })
+
+		    //create zoom control
+		    var zoomIn = d3.select('#map')
+		        .append('div')
+		        .attr('class', 'zoomBtn')
+		        .attr('id','zoom-in')
+		        .html('+');
+
+		    var zoomOut = d3.select('#map')
+		        .append('div')
+		        .attr('class', 'zoomBtn')
+		        .attr('id','zoom-out')
+		        .html('–');
+
+		    zoomIn.on('click', map.zoomClick);
+		    zoomOut.on('click', map.zoomClick);
 		},
 
 		animate: function(){
@@ -591,6 +609,61 @@
 						}
 					}).attr('stroke-opacity',1);
 			});
-		}		
+		},
+
+		zoomMap: function(){
+			var strokescale = d3.scale.log().domain([1, 8]).range([0.3, 2]);
+			var labelscale = d3.scale.log() .domain([1, 8]).range([12, 2]);
+
+		    var g = d3.select('#map').select('svg').selectAll('g');
+		    g.attr('transform', 'translate(' + map.zoom.translate() + ') scale(' + map.zoom.scale() + ')');
+		    g.selectAll('circle')
+		        .attr('r', function (d) { return (d.value==0) ? map.rscale(1)/map.zoom.scale() : map.rscale(d.value)/map.zoom.scale(); });
+		    g.selectAll('path').style('stroke-width', strokescale(map.zoom.scaleExtent()[1]/map.zoom.scale()));
+		    g.selectAll('.label')
+		    	.style('font-size', function(d) { return Math.round(labelscale(map.zoom.scale())); })
+		},
+
+		interpolateZoom: function(translate, scale) {
+		    var self = this;
+		    return d3.transition().duration(350).tween('zoom', function () {
+		        var iTranslate = d3.interpolate(map.zoom.translate(), translate),
+		            iScale = d3.interpolate(map.zoom.scale(), scale);
+		        return function (t) {
+		            map.zoom
+		                .scale(iScale(t))
+		                .translate(iTranslate(t));
+		            map.zoomMap();
+		        };
+		    });
+		},
+
+	 	zoomClick: function() {
+		    var clicked = d3.event.target,
+		        direction = 1,
+		        factor = 0.2,
+		        target_zoom = 1,
+		        center = [map.svg.attr('width') / 2, map.svg.attr('height') / 2],
+		        extent = map.zoom.scaleExtent(),
+		        translate = map.zoom.translate(),
+		        translate0 = [],
+		        l = [],
+		        view = {x: translate[0], y: translate[1], k: map.zoom.scale()};
+
+		    d3.event.preventDefault();
+		    direction = (this.id === 'zoom-in') ? 1 : -1;
+		    target_zoom = map.zoom.scale() * (1 + factor * direction);
+
+		    if (target_zoom < extent[0] || target_zoom > extent[1]) { return false; }
+
+		    translate0 = [(center[0] - view.x) / view.k, (center[1] - view.y) / view.k];
+		    view.k = target_zoom;
+		    l = [translate0[0] * view.k + view.x, translate0[1] * view.k + view.y];
+
+		    view.x += center[0] - l[0];
+		    view.y += center[1] - l[1];
+
+		    map.interpolateZoom([view.x, view.y], view.k);
+		}	
 	}
 })();
