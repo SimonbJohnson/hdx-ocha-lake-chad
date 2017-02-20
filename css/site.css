@@ -42,6 +42,7 @@ p{
 }
 .keyfigures .d3-tip h4{
 	margin: 0;
+	margin-bottom: 5px;
 	min-height: auto;
 	white-space: nowrap;
 }
