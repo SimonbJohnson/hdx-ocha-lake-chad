@@ -26,6 +26,10 @@ p{
 	font-size: 13px;
 }
 
+.c3-texts-Unmet text {
+  transform: translate(-3px, 0);
+}
+
 .keyfigures h4{
 	min-height: 26px;
 }
