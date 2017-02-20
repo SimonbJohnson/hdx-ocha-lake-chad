@@ -36,6 +36,15 @@ p{
 .keyfigures h4.header{
 	min-height: auto;
 }
+.keyfigures .d3-tip{
+  position: absolute;
+  z-index: 1000;
+}
+.keyfigures .d3-tip h4{
+	margin: 0;
+	min-height: auto;
+	white-space: nowrap;
+}
 .statsNum{
 	font-size: 20px;
 	vertical-align: top;

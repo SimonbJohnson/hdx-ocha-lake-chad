@@ -47,19 +47,25 @@ function generateMap(incidents,refugees,accessible,adm1,adm2,countries,countries
 }
 
 function generateKeyStats(data){
-
     var cf = crossfilter(data);
     var datesDimension = cf.dimension(function(d){ return d['#date']; });
 
+    var countryDimension = cf.dimension(function(d){return d['#country+code'];});
+
     var affectedGroup = datesDimension.group().reduceSum(function(d){ return (d['#affected']); }).top(Infinity).sort(date_sort);
+    var affectedGroupByCountry = countryDimension.group().reduceSum(function(d){ return (d['#affected']); }).top(Infinity).sort(date_sort);
 
     var inneedGroup = datesDimension.group().reduceSum(function(d){ return (d['#inneed']); }).top(Infinity).sort(date_sort);
+    var inneedGroupByCountry = countryDimension.group().reduceSum(function(d){ return (d['#inneed']); }).top(Infinity).sort(date_sort);
 
     var foodinsecureGroup = datesDimension.group().reduceSum(function(d){ return (d['#affected+foodinsecure']); }).top(Infinity).sort(date_sort);
+    var foodinsecureGroupByCountry = countryDimension.group().reduceSum(function(d){ return (d['#affected+foodinsecure']); }).top(Infinity).sort(date_sort);
 
     var displacedGroup = datesDimension.group().reduceSum(function(d){ return (d['#affected+displaced']); }).top(Infinity).sort(date_sort);
+    var displacedGroupByCountry = countryDimension.group().reduceSum(function(d){ return (d['#affected+displaced']); }).top(Infinity).sort(date_sort);
 
     var samGroup = datesDimension.group().reduceSum(function(d){ return (d['#affected+sam']); }).top(Infinity).sort(date_sort);
+    var samGroupByCountry = countryDimension.group().reduceSum(function(d){ return (d['#affected+sam']); }).top(Infinity).sort(date_sort);
     
     var datesArr = ['x'];
     var affectedArr = ['Affected'];
@@ -77,14 +83,14 @@ function generateKeyStats(data){
         samArr.push(samGroup[i].value);
     }
 
-    var sparklineW = 70;
+    var sparklineW = 65;
     var sparklineH = 40;
     var keyFiguresArr = [
-            { dimension: 'affected', dimensionArr: affectedArr, total: affectedGroup[affectedGroup.length-1].value },
-            { dimension: 'inneed', dimensionArr: inneedArr, total: inneedGroup[inneedGroup.length-1].value },
-            { dimension: 'foodinsecure', dimensionArr: foodinsecureArr, total: foodinsecureGroup[foodinsecureGroup.length-1].value },
-            { dimension: 'displaced', dimensionArr: displacedArr, total: displacedGroup[displacedGroup.length-1].value },
-            { dimension: 'sam', dimensionArr: samArr, total: samGroup[samGroup.length-1].value }
+            { dimension: 'affected', dimensionArr: affectedArr, total: affectedGroup[affectedGroup.length-1].value, countryArr: affectedGroupByCountry},
+            { dimension: 'inneed', dimensionArr: inneedArr, total: inneedGroup[inneedGroup.length-1].value, countryArr: inneedGroupByCountry },
+            { dimension: 'foodinsecure', dimensionArr: foodinsecureArr, total: foodinsecureGroup[foodinsecureGroup.length-1].value, countryArr: foodinsecureGroupByCountry },
+            { dimension: 'displaced', dimensionArr: displacedArr, total: displacedGroup[displacedGroup.length-1].value, countryArr: displacedGroupByCountry },
+            { dimension: 'sam', dimensionArr: samArr, total: samGroup[samGroup.length-1].value, countryArr: samGroupByCountry }
         ];
     for (var i=0;i<keyFiguresArr.length;i++) {
         $('#'+keyFiguresArr[i].dimension+'Total').html(numFormat(keyFiguresArr[i].total));
@@ -110,6 +116,26 @@ function generateKeyStats(data){
             legend: { hide: true }
         });
     }
+
+    //map tooltips
+    var keytip = d3.select('.keyfigures').append('div').attr('class', 'd3-tip hidden');
+    $('.keyfigure').each(function(i,e){
+        var str = '<h4>Country Breakdown</h4>';
+        for (var j=0;j<keyFiguresArr[i].countryArr.length;j++){
+            str += keyFiguresArr[i].countryArr[j].key + ': ' + numFormat(keyFiguresArr[i].countryArr[j].value) + '<br>';
+        }
+
+        var l = $(e)[0].offsetLeft;
+        $(e).find('span, div').on('mouseover', function(e) {  
+            keytip
+                .classed('hidden', false)
+                .attr('style', 'left:'+l+'px;top:'+e.pageY+'px')
+                .html(str)
+        })
+        $(e).find('span, div').on('mouseout',  function() {
+            keytip.classed('hidden', true)
+        }); 
+    });
 }
 
 function generateFundingGraph(data){
