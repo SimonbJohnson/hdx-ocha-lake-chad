@@ -329,7 +329,7 @@ function generateDisplacedGraph(data){
 }
 
 
-var numFormat = function(d){return d3.format('.2s')(d).replace('G','B')};
+var numFormat = function(d){return d3.format('.3s')(d).replace('G','B')};
 var dateFormat = d3.time.format("%d %b %Y");
 
 var keyStatsCall = $.ajax({ 
