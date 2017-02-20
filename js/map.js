@@ -12,17 +12,25 @@
 
 		init: function(adm1,adm2,countries, incidents, displaced, accessible,countrieslabel){
 			//get centroids of adm for refuguee points
-			map.refugeeLocations = {};
+			//map.refugeeLocations = {};
 			map.names = {};
 			adm1.features.forEach(function(f){
-				var minx = d3.min(f.geometry.coordinates[0],function(d){return d[0]});
-				var maxx = d3.max(f.geometry.coordinates[0],function(d){return d[0]});
-				var miny = d3.min(f.geometry.coordinates[0],function(d){return d[1]});
-				var maxy = d3.max(f.geometry.coordinates[0],function(d){return d[1]});
-				map.refugeeLocations[f.properties.Rowcacode1] = [(minx+maxx)/2,(miny+maxy)/2];
+				//var minx = d3.min(f.geometry.coordinates[0],function(d){return d[0]});
+				//var maxx = d3.max(f.geometry.coordinates[0],function(d){return d[0]});
+				//var miny = d3.min(f.geometry.coordinates[0],function(d){return d[1]});
+				//var maxy = d3.max(f.geometry.coordinates[0],function(d){return d[1]});
+				//map.refugeeLocations[f.properties.Rowcacode1] = [(minx+maxx)/2,(miny+maxy)/2];
 				map.names[f.properties.Rowcacode1] = f.properties.ADM1_NAME
 			});
 
+			map.refugeeLocations = {
+				'CMR004':[14.704938332940359,11.001252996162858],
+				'NER002':[13.09507994956551,15.538930113874653],
+				'NGA002':[12.54126081969952,9.174176538517083],
+				'NGA008':[13.106831280395093,11.868798100673311],
+				'NGA036':[11.072645782176757,11.971987319595204],
+				'TCD007':[14.511567288792943,13.690566527516006]
+			}
 			//incident points with date filter
 
 			map.incidents = crossfilter(incidents);
