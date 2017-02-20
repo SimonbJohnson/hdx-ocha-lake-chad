@@ -64,6 +64,12 @@ function generateKeyStats(data){
                          displaced:key['#affected+displaced'],
                          sam:key['#affected+sam']});
     });
+    var countryNameMap = {
+        CHD: 'Chad',
+        CMR: 'Cameroon',
+        NGR: 'Nigeria',
+        NER: 'Niger'
+    };
 
     var inneedGroup = datesDimension.group().reduceSum(function(d){ return (d['#inneed']); }).top(Infinity).sort(date_sort);
 
@@ -129,7 +135,7 @@ function generateKeyStats(data){
         var figure = $(this).attr('data-figure');
         var str = '<h4>Country Breakdown</h4>';
         for (var j=0;j<countryArr.length;j++){
-            str += countryArr[j].id + ': ' + numFormat(countryArr[j][figure]) + '<br>';
+            str += countryNameMap[countryArr[j].id] + ': ' + numFormat(countryArr[j][figure]) + '<br>';
         }
 
         var l = $(e)[0].offsetLeft;
