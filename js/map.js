@@ -21,7 +21,6 @@
 				var maxy = d3.max(f.geometry.coordinates[0],function(d){return d[1]});
 				map.refugeeLocations[f.properties.Rowcacode1] = [(minx+maxx)/2,(miny+maxy)/2];
 				map.names[f.properties.Rowcacode1] = f.properties.ADM1_NAME
-				console.log(f);
 			});
 
 			//incident points with date filter
