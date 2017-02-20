@@ -118,7 +118,9 @@ function generateFundingGraph(data){
     
     var maxDate = d3.max(data,function(d){return d['#date'];});
 
-    var fundingData = fundsDimension.filter(maxDate).top(Infinity);
+    var fundingData = fundsDimension.filter(maxDate).top(Infinity).sort(function(a, b) {
+        return b['#meta+requirement'] - a['#meta+requirement'];
+    });
 
     var locationArr = ['x'];
     var fundedArr = ['Funded'];
@@ -132,6 +134,12 @@ function generateFundingGraph(data){
     $('#fundingChartHeader').html('Revised Requirement for ' + maxDate.getFullYear() + ' (in US $)');
     var chart = c3.generate({
         bindto: '#fundingChart',
+        padding: {
+            top: 0,
+            right: 0,
+            bottom: 0,
+            left: 60
+        },
         size: { height: 150 },
         color: {
           pattern: ['#0066b9','#FF9B00']
