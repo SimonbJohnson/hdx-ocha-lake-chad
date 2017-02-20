@@ -36,6 +36,12 @@ function parseDates(tags,data){
     return data;
 }
 
+var date_sort = function (d1, d2) {
+    if (d1.key > d2.key) return 1;
+    if (d1.key < d2.key) return -1;
+    return 0;
+};
+
 function generateMap(incidents,refugees,accessible,adm1,adm2,countries,countrieslabel){
     map.init(adm1,adm2,countries,incidents,refugees, accessible, countrieslabel);
 }
@@ -45,15 +51,15 @@ function generateKeyStats(data){
     var cf = crossfilter(data);
     var datesDimension = cf.dimension(function(d){ return d['#date']; });
 
-    var affectedGroup = datesDimension.group().reduceSum(function(d){ return (d['#affected']); }).top(Infinity);
+    var affectedGroup = datesDimension.group().reduceSum(function(d){ return (d['#affected']); }).top(Infinity).sort(date_sort);
 
-    var inneedGroup = datesDimension.group().reduceSum(function(d){ return (d['#inneed']); }).top(Infinity);
+    var inneedGroup = datesDimension.group().reduceSum(function(d){ return (d['#inneed']); }).top(Infinity).sort(date_sort);
 
-    var foodinsecureGroup = datesDimension.group().reduceSum(function(d){ return (d['#affected+foodinsecure']); }).top(Infinity);
+    var foodinsecureGroup = datesDimension.group().reduceSum(function(d){ return (d['#affected+foodinsecure']); }).top(Infinity).sort(date_sort);
 
-    var displacedGroup = datesDimension.group().reduceSum(function(d){ return (d['#affected+displaced']); }).top(Infinity);
+    var displacedGroup = datesDimension.group().reduceSum(function(d){ return (d['#affected+displaced']); }).top(Infinity).sort(date_sort);
 
-    var samGroup = datesDimension.group().reduceSum(function(d){ return (d['#affected+sam']); }).top(Infinity);
+    var samGroup = datesDimension.group().reduceSum(function(d){ return (d['#affected+sam']); }).top(Infinity).sort(date_sort);
     
     var datesArr = ['x'];
     var affectedArr = ['Affected'];
@@ -81,7 +87,6 @@ function generateKeyStats(data){
             { dimension: 'sam', dimensionArr: samArr, total: samGroup[samGroup.length-1].value }
         ];
     for (var i=0;i<keyFiguresArr.length;i++) {
-        console.log(keyFiguresArr[i]);
         $('#'+keyFiguresArr[i].dimension+'Total').html(numFormat(keyFiguresArr[i].total));
         var chart = c3.generate({
             bindto: '#'+keyFiguresArr[i].dimension+'Line',
@@ -177,7 +182,7 @@ function generateFoodInsecureGraph(data){
     }
     var chart = c3.generate({
         bindto: '#foodinsecureChart',
-        size: { height: 175 },
+        size: { height: 155 },
         padding: { right: 20 },
         color: {
           pattern: ['#0066b9']
@@ -213,6 +218,7 @@ function generateFoodInsecureGraph(data){
         },
         legend: { hide: true }
     });
+    $('#foodinsecureChart').data('c3-chart', chart);
 }
 
 function generateIADGraph(data){
@@ -227,7 +233,7 @@ function generateIADGraph(data){
 
     var chart = c3.generate({
         bindto: '#incidentChart',
-        size: { height: 175 },
+        size: { height: 155 },
         color: {
           pattern: ['#FF9B00', '#999']
         },
@@ -268,13 +274,14 @@ function generateIADGraph(data){
             }
         }
     });
+    $('#incidentChart').data('c3-chart', chart);
 }
 
 function generateDisplacedGraph(data){
     var cf = crossfilter(data);
     var displacedDimension = cf.dimension(function(d){return d['#date'];});
-    var displacedGroup = displacedDimension.group().reduceSum(function(d){return parseInt(d['#affected+refugees'])+parseInt(d['#affected+idps']); }).top(Infinity);
-    
+    var displacedGroup = displacedDimension.group().reduceSum(function(d){return parseInt(d['#affected+refugees'])+parseInt(d['#affected+idps']); }).top(Infinity).sort(date_sort);
+
     var displacedArr = ['Displaced'];
     var datesArr = ['x'];
     for (var i=0;i<displacedGroup.length;i++){
@@ -283,7 +290,7 @@ function generateDisplacedGraph(data){
     }
     var chart = c3.generate({
         bindto: '#displacedChart',
-        size: { height: 175 },
+        size: { height: 155 },
         padding: { right: 20 },
         color: {
           pattern: ['#0066b9']
@@ -318,6 +325,7 @@ function generateDisplacedGraph(data){
         },
         legend: { hide: true }
     });
+    $('#displacedChart').data('c3-chart', chart);
 }
 
 

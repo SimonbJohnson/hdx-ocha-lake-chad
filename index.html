@@ -28,60 +28,66 @@
             <div class="row">
                 <div class="col-md-3">
                     <h4 class="header">Background</h4>
-                    <p><b>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</b> Pellentesque posuere rhoncus consectetur. Morbi metus augue, accumsan id aliquet quis, porttitor ut erat. Vivamus gravida placerat augue nec finibus. Vestibulum ut lobortis odio. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.</p>
-                </div>
-                <div class="col-md-4">
-                    <h4 id="fundingChartHeader" class="header"></h4>
-                    <div id="fundingChart"></div>
+                    <p><b>The complex emergency in the Lake Chad basin is affecting some 17 million people in Nigeria, Cameroon, Chad and Niger.</b> It has destroyed lives and livelihoods and forced millions to flee their homes. The majority of the displaced are sheltered by communities who are among the poorest in the world. Across the region, one in three families is food insecure, and malnutrition rates have reached critical levels. One in every two people needs urgent humanitarian assistance.</p>
                 </div>
                 <div class="col-md-5 keyfigures">
+                    <h4 class="header">Most recent key figures</h4>
                     <div class="row">
-                        <div class="col-md-4">
+                        <div class="col-md-4 col-xs-6">
                             <h4>Living in affected area</h4>
                             <span id="affectedTotal" class="statsNum"></span><div id="affectedLine" class="sparkline"></div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-4 col-xs-6">
                             <h4>People in Need</h4>
                             <span id="inneedTotal" class="statsNum"></span><div id="inneedLine" class="sparkline"></div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-4 col-xs-6">
                             <h4>Food Insecure</h4>
                             <span id="foodinsecureTotal" class="statsNum"></span><div id="foodinsecureLine" class="sparkline"></div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-4 col-xs-6">
                             <h4>People Displaced</h4>
                             <span id="displacedTotal" class="statsNum"></span><div id="displacedLine" class="sparkline"></div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-4 col-xs-6">
                             <h4>Children suffering from acute malnutrition</h4>
                             <span id="samTotal" class="statsNum"></span><div id="samLine" class="sparkline"></div>
                         </div>
                     </div>
                 </div>
+                <div class="col-md-4">
+                    <h4 id="fundingChartHeader" class="header"></h4>
+                    <div id="fundingChart"></div>
+                </div>
             </div>
             <hr>
-            <div id="controlslayer" class="row">
-                <div class="col-md-3 col-md-offset-1"><p>Use the time slider to see how the crisis changed over time</p></div>
-                <div class="col-md-4" id="timeline"></div>
-                <div class="col-md-4"><button id="animateBtn" class="btn btn-default">Animate map</button></div>
-            </div>
             <div id="mainviz" class="row">
-                <div class="col-md-4">
-                    <h3 class="header">Food Insecure</h3>
-                    <div id="foodinsecureChart"></div>
-
-                    <h3 class="header">Map Legend</h3>
-                    <div id="maplegend"></div>
-                </div>
-                <div class="col-md-4">
-                    <div id="map"></div>
+                <div class="col-md-8">
+                    <div id="controlslayer" class="row">
+                        <div class="col-md-4 topmargin"><p>Use the time slider to see how the crisis changed over time</p></div>
+                        <div class="col-md-8">
+                            <div id="timeline" class="pull-left"></div><button id="animateBtn" class="btn btn-default pull-right topmargin">Animate map</button>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <h3 class="header">Map Legend</h3>
+                            <div id="maplegend"></div>
+                        </div>
+                        <div class="col-md-8">
+                            <div id="map"></div>
+                        </div>
+                    </div>
                 </div>
                 <div class="col-md-4">
                     <h3 class="header">Incidents and Deaths</h3>
-                    <div id="incidentChart"></div>
+                    <div id="incidentChart" class="chart"></div>
 
                     <h3 class="header">Displacement trend</h3>
-                    <div id="displacedChart"></div>
+                    <div id="displacedChart" class="chart"></div>
+
+                    <h3 class="header">Food Insecure</h3>
+                    <div id="foodinsecureChart" class="chart"></div>
                 </div>
             </div>
         </div>

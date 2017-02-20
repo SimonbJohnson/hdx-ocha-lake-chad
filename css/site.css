@@ -3,10 +3,13 @@
 }
 
 h3{
-	font-size: 15px;
+	font-size: 14px;
 }
 h4{
 	font-size: 12px;
+}
+.small{
+	font-size: 10px;
 }
 
 .header{
@@ -26,6 +29,9 @@ p{
 .keyfigures h4{
 	min-height: 26px;
 }
+.keyfigures h4.header{
+	min-height: auto;
+}
 .statsNum{
 	font-size: 20px;
 	vertical-align: top;
@@ -35,9 +41,6 @@ p{
 	padding-left: 10px;
 }
 
-#controlslayer > div{
-	padding-top: 20px;
-}
 #controlslayer #timeline{
 	padding-top: 0;
 }
@@ -45,9 +48,58 @@ p{
 	color: #999;
 }
 
+#mainviz{
+	margin-bottom: 20px;
+}
+
 .label{
 	fill: #999;
 	font-weight: normal;
+}
+
+#animateBtn{
+	font-size: 13px;
+}
+
+#map .zoomBtn{
+    background-color: #FFF;
+    border: 1px solid #CCC;
+    box-shadow: 0 0 5px rgba(0,0,0,0.2);
+    bottom: 10px;
+    cursor: pointer;
+    font-size: 20px;
+    font-weight: 700;
+    height: 25px;
+    line-height: 16px;
+    position: absolute;
+    left: 25px;
+    text-align: center;
+    width: 25px;
+}
+#map #zoom-in{
+    bottom: 34px;
+}
+
+/* map tooltips */
+.d3-tip {
+    padding:5px;
+    background-color:white;
+    background: rgba(255,255,255,0.8);
+    box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    border-radius: 5px;
+    font-size:1em;
+}
+.map-tip{
+  position: absolute;
+}
+.map-tip h4{
+	margin: 0;
+}
+.hidden { 
+  display: none; 
+}
+.topmargin{
+	margin-top: 20px;
 }
 
 /* map legend */
@@ -64,8 +116,10 @@ p{
 	font-size: 12px;
 }
 
-
 /* timeline slider styles */
+#timeline{
+	width: 365px;
+}
 .axis {
   fill: #999;
   font-size: 10px;
@@ -73,20 +127,17 @@ p{
   -moz-user-select: none;
   user-select: none;
 }
-
 .axis .halo {
   stroke: #999;
   stroke-width: 4px;
   stroke-linecap: square;
 }
-
 .slider .handle path {
   stroke: black;
   stroke-width: 3px;
   stroke-linecap: round;
   pointer-events: none;
 }
-
 .slider .handle text {
   fill: #999;
   text-align: center;

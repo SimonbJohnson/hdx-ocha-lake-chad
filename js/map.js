@@ -4,21 +4,23 @@
 		parseDate: d3.time.format("%m/%d/%Y").parse,
 		snapshotID: 0,
 		isAnimating: false,
+		animationInterval: 800,
 		incidentsColor: '#FF9B00',
 		refugeesColor: '#4CAF50',
-		accessibleColor: '#fae796',
-		notaccessibleColor: '#c84858',
+		displacedColors: ['#deebf7','#c6dbef','#9ecae1','#6baed6','#4292c6','#2171b5'],
+		displacedRange: [1000,10000,100000,1000000],
 
 		init: function(adm1,adm2,countries, incidents, displaced, accessible,countrieslabel){
 			//get centroids of adm for refuguee points
 			map.refugeeLocations = {};
-
+			map.names = {};
 			adm1.features.forEach(function(f){
 				var minx = d3.min(f.geometry.coordinates[0],function(d){return d[0]});
 				var maxx = d3.max(f.geometry.coordinates[0],function(d){return d[0]});
 				var miny = d3.min(f.geometry.coordinates[0],function(d){return d[1]});
 				var maxy = d3.max(f.geometry.coordinates[0],function(d){return d[1]});
 				map.refugeeLocations[f.properties.Rowcacode1] = [(minx+maxx)/2,(miny+maxy)/2];
+				map.names[f.properties.Rowcacode1] = f.properties.ADM1_NAME
 			});
 
 			//incident points with date filter
@@ -49,17 +51,19 @@
     		map.maxDate = d3.max(displaced,function(d){return (d['#date']);});
 
 			var width = $('#map').width();
-			var height = 450;
-			var svg = d3.select('#map').append('svg')
+			var height = 500;
+    		map.zoom = d3.behavior.zoom().scaleExtent([1, 8]).on('zoom', map.zoomMap);
+			map.svg = d3.select('#map').append('svg')
 	        	.attr('width', width)
 	        	.attr('height', height)
+        		.call(map.zoom);
 
 		    map.projection = d3.geo.mercator()
 		        .center([13, 13])
 		        .scale(width*5)
 		        .translate([width / 2, height / 2]);    
 
-		    var g = svg.append('g');
+		    var g = map.svg.append('g');
 
 		    g.selectAll('path')
 		     	.data(countries.features).enter()
@@ -83,22 +87,7 @@
 		        })
 		        .text(function(d){ return d.country; });
 
-
-		    var g = svg.append('g').attr('id','adm1layer');
-
-		    g.selectAll('path')
-		     	.data(adm1.features).enter()
-		     	.append('path')
-		      	.attr('d', d3.geo.path().projection(map.projection))
-		      	.attr('class','adm1')
-        		.attr('fill', '#ffffff')
-        		.attr('stroke-width',2)
-        		.attr('stroke','#aaaaaa')
-		      	.attr('id',function(d){
-		        	return d.properties.Rowcacode1;
-		      	});
-
-			var g = svg.append('g').attr('id','adm2layer');
+			var g = map.svg.append('g').attr('id','adm2layer');
 
 		    g.selectAll('path')
 		     	.data(adm2.features).enter()
@@ -114,9 +103,23 @@
 		        	return d.properties.Rowcacode2;
 		      	});
 
-		    var g = svg.append('g').attr('id','incidentslayer');
+		    var g = map.svg.append('g').attr('id','adm1layer');
 
-		    var g = svg.append('g').attr('id','refugeeslayer');
+		    g.selectAll('path')
+		     	.data(adm1.features).enter()
+		     	.append('path')
+		      	.attr('d', d3.geo.path().projection(map.projection))
+		      	.attr('class','adm1')
+        		.attr('fill', '#ffffff')
+        		.attr('stroke-width',2)
+        		.attr('stroke','#aaaaaa')
+		      	.attr('id',function(d){
+		        	return d.properties.Rowcacode1;
+		      	});
+
+		    var g = map.svg.append('g').attr('id','incidentslayer');
+
+		    var g = map.svg.append('g').attr('id','refugeeslayer');
 
 		    //load data for a particular date
 
@@ -133,12 +136,28 @@
 		    	if (!map.isAnimating){
         			$(this).html('Pause animation');
         			map.isAnimating = true;
-        			map.timer = setInterval(function(){ map.animate()}, 800 );
+        			map.timer = setInterval(function(){ map.animate()}, map.animationInterval );
         		}
         		else {
         			map.resetAnimation(false);
         		}
 		    })
+
+		    //create zoom control
+		    var zoomIn = d3.select('#map')
+		        .append('div')
+		        .attr('class', 'zoomBtn')
+		        .attr('id','zoom-in')
+		        .html('+');
+
+		    var zoomOut = d3.select('#map')
+		        .append('div')
+		        .attr('class', 'zoomBtn')
+		        .attr('id','zoom-out')
+		        .html('–');
+
+		    zoomIn.on('click', map.zoomClick);
+		    zoomOut.on('click', map.zoomClick);
 		},
 
 		animate: function(){
@@ -160,6 +179,9 @@
 
 		resetAnimation: function(reset){
     		$('#animateBtn').html('Animate map');
+    		$('#foodinsecureChart').data('c3-chart').tooltip.hide();
+    		$('#displacedChart').data('c3-chart').tooltip.hide();
+    		$('#incidentChart').data('c3-chart').tooltip.hide();
     		map.isAnimating = false;
     		if (reset) map.snapshotID = -1;
     		clearInterval(map.timer);
@@ -168,7 +190,7 @@
 		createTimeline: function(date){
 			// parameters
 			var margin = {
-			    top: 10,
+			    top: 0,
 			    right: 40,
 			    bottom: 10,
 			    left: 30
@@ -188,7 +210,7 @@
 			map.brush = d3.svg.brush()
 			  	.x(map.timeScale)
 			  	.extent([startingValue, startingValue])
-			  	.on('brush', map.brushed);
+			  	.on('brushend', map.brushed);
 
 			var svg = d3.select('#timeline').append('svg')
 			  	.attr('width', width + margin.left + margin.right)
@@ -283,7 +305,7 @@
 
 		getSnapshotID: function(date){
 			for (var i=0;i<map.dates.length;i++){
-				if (date==map.dates[i]){
+				if (date.getTime()==map.dates[i].getTime()){
 					return i;
 				}
 			}
@@ -344,56 +366,81 @@
                 .attr("y", function(d,i) { return 20; })
                 .text( function (d) { return d; });
 
-
             //displaced
 			$('#maplegend').append('<input type="checkbox" name="maplayer" id="displacedcheck" checked><label for="displacedcheck">Displaced</label><div id="displacedcircles"></div>')
 		    $('#displacedcheck').change(function(e){
 			 	if ($(e.target).is(':checked')) {
-			 		$('#adm1layer').attr('display', 'block');
+			 		map.updateIDPs(map.brush.extent()[0]);
 			 	}
 			 	else{
-			 		$('#adm1layer').attr('display', 'none');
+					d3.selectAll('.adm1').attr('fill','#f7fbff');
 			 	}
 			});
 
-			var displacedcolors = ['#fff7fb','#ece7f2','#d0d1e6','#a6bddb'];
-			var displaceddata = [1000,10000,100000,1000000]
 
-			var svg = d3.select('#displacedcircles').append('svg')
-	        	.attr('width', keyWidth)
-	        	.attr('height', keyHeight+10)
+			var svggradient = d3.select('#maplegend').append('svg');
+			var defs = svggradient.append("defs");
+			var linearGradient = defs.append("linearGradient")
+			    .attr("id", "linear-gradient");
 
-			svg.selectAll('circle')
-				.data(displaceddata).enter()
-				.append('circle')
-				.attr('cx',function(d,i){
-					return i*65+25
-				})
-				.attr('cy',function(d,i){
-					return 15;
-				})
-			    .attr('r', function(d){
-			    	return 6;
-			    })
-			    .attr('fill', function(d,i){ return displacedcolors[i]; });
+			linearGradient
+			    .attr("x1", "0%")
+			    .attr("y1", "0%")
+			    .attr("x2", "100%")
+			    .attr("y2", "0%");
 
-			svg.selectAll('text')
-				.data(displaceddata).enter()
-				.append('text')
-				.attr('x', function(d,i) { return i*65+35; })
-                .attr('y', function(d,i) { return 20; })
-                .text( function (d) { return d; });
+			var colorScale = d3.scale.linear()
+			    .range(map.displacedColors);
+
+			linearGradient.selectAll("stop") 
+			    .data( colorScale.range() )                  
+			    .enter().append("stop")
+			    .attr("offset", function(d,i) { return i/(colorScale.range().length-1); })
+			    .attr("stop-color", function(d) { return d; });
+
+			svggradient.append("rect")
+				.attr("width", $('#maplegend').width()-30)
+				.attr("height", 20)
+				.attr('x', 20)
+				.style("fill", "url(#linear-gradient)");
+
+			svggradient.append("text")
+				.attr('x', 20)
+				.attr('y', 35)
+				.attr('class', 'small')
+				.text( map.displacedRange[0] );
+
+			svggradient.append("text")
+				.attr('x', $('#maplegend').width()-50)
+				.attr('y', 35)
+				.attr('class', 'small')
+				.text( map.displacedRange[map.displacedRange.length-1] );
+
 
             //accessibility
-			$('#maplegend').append('<input type="checkbox" name="maplayer" id="accessibilitycheck" checked><label for="accessibilitycheck">Accessibility</label><div id="accessibilitycircles"><svg id="accessibilityKey" width="'+keyWidth+'" height="'+(keyHeight+20)+'"><line x1="20" y1="6" x2="50" y2="6" stroke-width="2" stroke="'+map.accessibleColor+'"/><text x="60" y="10">Accessible with restriction</text><line x1="20" y1="26" x2="50" y2="26" stroke-width="2" stroke="'+map.notaccessibleColor+'"/><text x="60" y="30">Not accessible</text>');
-        	$('#accessibilitycheck').change(function(e){
-			 	if ($(e.target).is(':checked')) {
-			 		$('#adm2layer').attr('display', 'block');
-			 	}
-			 	else{
-			 		$('#adm2layer').attr('display', 'none');
-			 	}
-			});
+			// $('#maplegend').append('<input type="checkbox" name="maplayer" id="accessibilitycheck" checked><label for="accessibilitycheck">Accessibility</label><div id="accessibilitycircles"><svg id="accessibilityKey" width="'+keyWidth+'" height="'+(keyHeight+20)+'"><line x1="20" y1="6" x2="50" y2="6" stroke-width="2" stroke="'+map.accessibleColor+'"/><text x="60" y="10">Accessible with restriction</text><line x1="20" y1="26" x2="50" y2="26" stroke-width="2" stroke="'+map.notaccessibleColor+'"/><text x="60" y="30">Not accessible</text>');
+   //      	$('#accessibilitycheck').change(function(e){
+			//  	if ($(e.target).is(':checked')) {
+			//  		$('#adm2layer').attr('display', 'block');
+			//  	}
+			//  	else{
+			//  		$('#adm2layer').attr('display', 'none');
+			//  	}
+			// });
+		},
+
+		showMapTooltip: function(d, maptip, text){
+			if (!map.isAnimating){
+				var mouse = d3.mouse(map.svg.node()).map( function(d) { return parseInt(d); } );
+		            maptip
+		                .classed('hidden', false)
+		                .attr('style', 'left:'+(mouse[0]+20)+'px;top:'+(mouse[1]+20)+'px')
+		                .html(text)
+	        }
+		},
+
+		hideMapTooltip: function(maptip){
+		    maptip.classed('hidden', true)
 		},
 
 		// all update functions
@@ -401,7 +448,29 @@
 			map.updateIncidents(date);
 			map.updateRefugees(date);
 			map.updateIDPs(date);
-			map.updateAccessibility(date);
+			//map.updateAccessibility(date);
+
+			//show corresponding snapshot date on charts, make sure data exists before trying to show tooltip
+			var formatDate = d3.time.format("%m %Y");
+			var charts = ['#displacedChart','#foodinsecureChart','#incidentChart'];
+			for (var i=0;i<charts.length;i++){
+				var values = $(charts[i]).data('c3-chart').internal.data.targets[0].values;
+				$(charts[i]).data('c3-chart').tooltip.hide();
+				for (var j=0;j<values.length;j++){
+					if (charts[i]=='#incidentChart') { 
+						if (formatDate(values[j].x)==formatDate(date)){
+							$(charts[i]).data('c3-chart').tooltip.show({ x: values[j].x });
+							break;
+						}
+					}
+					else{
+						if (values[j].x.getTime() == date.getTime()){
+							$(charts[i]).data('c3-chart').tooltip.show({ x: values[j].x });
+							break;
+						}
+					}
+				}
+			}
 		},
 
 		updateIncidents: function(date){
@@ -427,7 +496,17 @@
 			    .attr('fill',map.incidentsColor)
 			    .attr('class','incidents');
 
-			circles.transition().attr('opacity',0.85);
+			circles.transition().duration(map.animationInterval/2).attr('opacity',0.85);
+
+			//map tooltips
+		    var maptip = d3.select('#map').append('div').attr('class', 'd3-tip map-tip hidden');
+		    circles
+		        .on('mousemove', function(d) {
+		            map.showMapTooltip(d, maptip, '<h4>Incidents</h4>'+map.formatDate(d['#date']) + ': ' + d['#loc'] + ' ' + d['#adm2']);
+		        })
+		        .on('mouseout',  function() {
+		            map.hideMapTooltip(maptip);
+		        }); 
 		},
 
 		updateRefugees: function(date){
@@ -473,28 +552,43 @@
 			    .attr('fill',map.refugeesColor)
 			    .attr('class','refugees');
 
-			circles.transition().attr('opacity',0.85);
+			circles.transition().duration(map.animationInterval/2).attr('opacity',0.85);
+
+			//map tooltips
+		    var maptip = d3.select('#map').append('div').attr('class', 'd3-tip map-tip hidden');
+		    circles
+		        .on('mousemove', function(d) {
+		            map.showMapTooltip(d, maptip, '<h4>Refugees</h4>'+map.names[d.key]+': '+d3.format('.2s')(d.value));
+		        })
+		        .on('mouseout',  function() {
+		            map.hideMapTooltip(maptip);
+		        }); 
 		},
 
 		updateIDPs: function(date){
-			d3.selectAll('.adm1').attr('fill','#f1eef6');
-			var colors = ['#ffffff','#fff7fb','#ece7f2','#d0d1e6','#a6bddb'];
-			var labels = [1000,10000,100000,1000000]
+			d3.selectAll('.adm1').attr('fill','#f7fbff');
+			
+			color = d3.scale.quantize();
+			color.domain([0, map.displacedRange[map.displacedRange.length-1]]);
+			color.range(map.displacedColors);
+
 			map.displacedDim.filter();
 			map.displacedDim.filter(date);
 			var data = map.idpsGroup.top(Infinity);
 
+    		//map tooltips
+		    var maptip = d3.select('#map').append('div').attr('class', 'd3-tip map-tip hidden');
 			data.forEach(function(d){
 				if(d.value>0){
 					d3.select('#'+d.key).attr('fill',function(){
-						var count = 0;
-						labels.forEach(function(l){
-							if(l<d.value){
-								count++;
-							}
-						});
-						return colors[count];
-					});
+						return color(d.value);
+					})
+					.on('mousemove', function(){
+			            map.showMapTooltip(d, maptip, '<h4>People Displaced</h4>'+map.names[d.key]+': '+d3.format('.2s')(d.value));
+					})
+			        .on('mouseout',  function() {
+		            map.hideMapTooltip(maptip);
+			        }); 
 				}
 			});
 		},
@@ -515,7 +609,61 @@
 						}
 					}).attr('stroke-opacity',1);
 			});
+		},
 
-		}		
+		zoomMap: function(){
+			var strokescale = d3.scale.log().domain([1, 8]).range([0.3, 2]);
+			var labelscale = d3.scale.log() .domain([1, 8]).range([12, 2]);
+
+		    var g = d3.select('#map').select('svg').selectAll('g');
+		    g.attr('transform', 'translate(' + map.zoom.translate() + ') scale(' + map.zoom.scale() + ')');
+		    g.selectAll('circle')
+		        .attr('r', function (d) { return (d.value==0) ? map.rscale(1)/map.zoom.scale() : map.rscale(d.value)/map.zoom.scale(); });
+		    g.selectAll('path').style('stroke-width', strokescale(map.zoom.scaleExtent()[1]/map.zoom.scale()));
+		    g.selectAll('.label')
+		    	.style('font-size', function(d) { return Math.round(labelscale(map.zoom.scale())); })
+		},
+
+		interpolateZoom: function(translate, scale) {
+		    var self = this;
+		    return d3.transition().duration(350).tween('zoom', function () {
+		        var iTranslate = d3.interpolate(map.zoom.translate(), translate),
+		            iScale = d3.interpolate(map.zoom.scale(), scale);
+		        return function (t) {
+		            map.zoom
+		                .scale(iScale(t))
+		                .translate(iTranslate(t));
+		            map.zoomMap();
+		        };
+		    });
+		},
+
+	 	zoomClick: function() {
+		    var clicked = d3.event.target,
+		        direction = 1,
+		        factor = 0.2,
+		        target_zoom = 1,
+		        center = [map.svg.attr('width') / 2, map.svg.attr('height') / 2],
+		        extent = map.zoom.scaleExtent(),
+		        translate = map.zoom.translate(),
+		        translate0 = [],
+		        l = [],
+		        view = {x: translate[0], y: translate[1], k: map.zoom.scale()};
+
+		    d3.event.preventDefault();
+		    direction = (this.id === 'zoom-in') ? 1 : -1;
+		    target_zoom = map.zoom.scale() * (1 + factor * direction);
+
+		    if (target_zoom < extent[0] || target_zoom > extent[1]) { return false; }
+
+		    translate0 = [(center[0] - view.x) / view.k, (center[1] - view.y) / view.k];
+		    view.k = target_zoom;
+		    l = [translate0[0] * view.k + view.x, translate0[1] * view.k + view.y];
+
+		    view.x += center[0] - l[0];
+		    view.y += center[1] - l[1];
+
+		    map.interpolateZoom([view.x, view.y], view.k);
+		}	
 	}
 })();
