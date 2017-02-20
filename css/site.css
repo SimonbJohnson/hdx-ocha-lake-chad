@@ -59,6 +59,9 @@ p{
 
 #animateBtn{
 	font-size: 13px;
+	background-color:#6baed6;
+	color:#fff;
+	border-color:#fff;
 }
 
 #map .zoomBtn{
