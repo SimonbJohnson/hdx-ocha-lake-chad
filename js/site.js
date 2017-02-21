@@ -47,11 +47,29 @@ function generateMap(incidents,refugees,accessible,adm1,adm2,countries,countries
 }
 
 function generateKeyStats(data){
-
     var cf = crossfilter(data);
     var datesDimension = cf.dimension(function(d){ return d['#date']; });
 
     var affectedGroup = datesDimension.group().reduceSum(function(d){ return (d['#affected']); }).top(Infinity).sort(date_sort);
+
+    var maxDate = d3.max(data,function(d){return d['#date'];});
+
+    var countryDimension = datesDimension.filter(maxDate);
+    var countryArr = [];
+    countryDimension.top(Infinity).forEach(function(key,i){
+        countryArr.push({id:key['#country+code'],
+                         affected:key['#affected'],
+                         inneed:key['#inneed'],
+                         foodinsecure:key['#affected+foodinsecure'],
+                         displaced:key['#affected+displaced'],
+                         sam:key['#affected+sam']});
+    });
+    var countryNameMap = {
+        CHD: 'Chad',
+        CMR: 'Cameroon',
+        NGR: 'Nigeria',
+        NER: 'Niger'
+    };
 
     var inneedGroup = datesDimension.group().reduceSum(function(d){ return (d['#inneed']); }).top(Infinity).sort(date_sort);
 
@@ -77,7 +95,7 @@ function generateKeyStats(data){
         samArr.push(samGroup[i].value);
     }
 
-    var sparklineW = 70;
+    var sparklineW = 65;
     var sparklineH = 40;
     var keyFiguresArr = [
             { dimension: 'affected', dimensionArr: affectedArr, total: affectedGroup[affectedGroup.length-1].value },
@@ -110,6 +128,27 @@ function generateKeyStats(data){
             legend: { hide: true }
         });
     }
+
+    //map tooltips
+    var keytip = d3.select('.keyfigures').append('div').attr('class', 'd3-tip hidden');
+    $('.keyfigure').each(function(i,e){
+        var figure = $(this).attr('data-figure');
+        var str = '<h4>Country Breakdown</h4>';
+        for (var j=0;j<countryArr.length;j++){
+            str += countryNameMap[countryArr[j].id] + ': ' + numFormat(countryArr[j][figure]) + '<br>';
+        }
+
+        var l = $(e)[0].offsetLeft;
+        $(e).find('span, div').on('mouseover', function(e) {  
+            keytip
+                .classed('hidden', false)
+                .attr('style', 'left:'+l+'px;top:'+e.pageY+'px')
+                .html(str)
+        })
+        $(e).find('span, div').on('mouseout',  function() {
+            keytip.classed('hidden', true)
+        }); 
+    });
 }
 
 function generateFundingGraph(data){
@@ -118,7 +157,9 @@ function generateFundingGraph(data){
     
     var maxDate = d3.max(data,function(d){return d['#date'];});
 
-    var fundingData = fundsDimension.filter(maxDate).top(Infinity);
+    var fundingData = fundsDimension.filter(maxDate).top(Infinity).sort(function(a, b) {
+        return b['#meta+requirement'] - a['#meta+requirement'];
+    });
 
     var locationArr = ['x'];
     var fundedArr = ['Funded'];
@@ -132,6 +173,12 @@ function generateFundingGraph(data){
     $('#fundingChartHeader').html('Revised Requirement for ' + maxDate.getFullYear() + ' (in US $)');
     var chart = c3.generate({
         bindto: '#fundingChart',
+        padding: {
+            top: 0,
+            right:  0,
+            bottom: 0,
+            left: 60
+        },
         size: { height: 150 },
         color: {
           pattern: ['#0066b9','#FF9B00']
@@ -329,7 +376,7 @@ function generateDisplacedGraph(data){
 }
 
 
-var numFormat = function(d){return d3.format('.2s')(d).replace('G','B')};
+var numFormat = function(d){return d3.format('.3s')(d).replace('G','B')};
 var dateFormat = d3.time.format("%d %b %Y");
 
 var keyStatsCall = $.ajax({ 
