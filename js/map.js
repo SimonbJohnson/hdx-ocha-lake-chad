@@ -357,7 +357,7 @@
 				.data(refdata).enter()
 				.append('circle')
 				.attr('cx',function(d,i){
-					return i*(50+map.rscale(d))+25
+					return i*(40+map.rscale(d))+25
 				})
 				.attr('cy',function(d,i){
 					return 15;
@@ -370,7 +370,7 @@
 			svg.selectAll('text')
 				.data(refdata).enter()
 				.append('text')
-				.attr('x', function(d,i) { return i*(50+map.rscale(d))+30+map.rscale(d); })
+				.attr('x', function(d,i) { return i*(40+map.rscale(d))+30+map.rscale(d); })
                 .attr("y", function(d,i) { return 20; })
                 .text( function (d) { return d; });
 
