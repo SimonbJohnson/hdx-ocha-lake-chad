@@ -170,7 +170,7 @@ function generateFundingGraph(data){
         unmetArr.push(fundingData[i]['#meta+requirement']-fundingData[i]['#meta+funding']);
     }
 
-    $('#fundingChartHeader').html('Revised Requirement for ' + maxDate.getFullYear() + ' (in US $)');
+    $('#fundingChartHeader').html('Requirement for ' + maxDate.getFullYear() + ' (in US $)');
     var chart = c3.generate({
         bindto: '#fundingChart',
         padding: {
