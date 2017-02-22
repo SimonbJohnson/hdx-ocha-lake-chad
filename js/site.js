@@ -197,7 +197,9 @@ function generateFundingGraph(data){
                 ['Funded', 'Unmet'] 
             ]
         },
-        bar: { width: 20 },
+        bar: { 
+            width: 20 
+        },
         axis: {
             rotated: true,
             x: {
@@ -290,7 +292,7 @@ function generateIADGraph(data){
             axes: { Deaths: 'y2' },
             types: { Incidents: 'bar' }
         },
-        bar: { width: 7 },
+        //bar: { width: 7},
         axis: {
             x: {
                 type: 'timeseries',
