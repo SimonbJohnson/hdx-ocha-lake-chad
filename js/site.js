@@ -138,11 +138,12 @@ function generateKeyStats(data){
             str += countryNameMap[countryArr[j].id] + ': ' + numFormat(countryArr[j][figure]) + '<br>';
         }
 
-        var l = $(e)[0].offsetLeft;
+        var leftPos = $(e)[0].offsetLeft;
+        var topPos = $(e)[0].offsetTop;
         $(e).find('span, div').on('mouseover', function(e) {  
             keytip
                 .classed('hidden', false)
-                .attr('style', 'left:'+l+'px;top:'+e.pageY+'px')
+                .attr('style', 'left:'+leftPos+'px;top:'+(topPos+70)+'px')
                 .html(str)
         })
         $(e).find('span, div').on('mouseout',  function() {
@@ -169,7 +170,8 @@ function generateFundingGraph(data){
         fundedArr.push(fundingData[i]['#meta+funding']);
         unmetArr.push(fundingData[i]['#meta+requirement']-fundingData[i]['#meta+funding']);
     }
-
+    var h = $('#fundingChart').parent().parent().height() - 50;
+    //$('#fundingChart').height()
     $('#fundingChartHeader').html('Requirement for ' + maxDate.getFullYear() + ' (in US $)');
     var chart = c3.generate({
         bindto: '#fundingChart',
@@ -179,7 +181,7 @@ function generateFundingGraph(data){
             bottom: 0,
             left: 60
         },
-        size: { height: 150 },
+        size: { height: h },
         color: {
           pattern: ['#0066b9','#FF9B00']
         },
@@ -189,16 +191,13 @@ function generateFundingGraph(data){
             type: 'bar',
             labels: {
                 format: {
-                    Funded: numFormat,
+                    // Funded: numFormat,
                     Unmet: numFormat
                 }
             },
             groups: [ 
                 ['Funded', 'Unmet'] 
             ]
-        },
-        bar: { 
-            width: 20 
         },
         axis: {
             rotated: true,
@@ -216,6 +215,10 @@ function generateFundingGraph(data){
         },
         legend: { hide: 'x' }
     });
+
+    if ($(window).width() < 768){
+        chart.resize({height:150})
+    }
 }
 
 function generateFoodInsecureGraph(data){
@@ -248,7 +251,7 @@ function generateFoodInsecureGraph(data){
                 localtime: false,
                 tick: {
                     centered: true,
-                    culling: { max: 5 },
+                    culling: { max: 4 },
                     format: '%b %Y',
                     outer: false
                 }

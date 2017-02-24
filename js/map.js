@@ -64,7 +64,7 @@
 			map.svg = d3.select('#map').append('svg')
 	        	.attr('width', width)
 	        	.attr('height', height)
-        		.call(map.zoom);
+        		//.call(map.zoom);
 
 		    map.projection = d3.geo.mercator()
 		        .center([13, 13])
@@ -385,8 +385,7 @@
 			 	}
 			});
 
-
-			var svggradient = d3.select('#maplegend').append('svg');
+			var svggradient = d3.select('#maplegend').append('svg').attr('height', 80);
 			var defs = svggradient.append("defs");
 			var linearGradient = defs.append("linearGradient")
 			    .attr("id", "linear-gradient");
@@ -421,7 +420,7 @@
 			svggradient.append("text")
 				.attr('x', $('#maplegend').width()-50)
 				.attr('y', 35)
-				.attr('class', 'small')
+				.attr('class', 'small text-end')
 				.text( map.displacedRange[map.displacedRange.length-1] );
 
 
