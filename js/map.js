@@ -418,7 +418,7 @@
 				.text( map.displacedRange[0] );
 
 			svggradient.append("text")
-				.attr('x', $('#maplegend').width()-50)
+				.attr('x', $('#maplegend').width()-10)
 				.attr('y', 35)
 				.attr('class', 'small text-end')
 				.text( map.displacedRange[map.displacedRange.length-1] );
