@@ -64,7 +64,7 @@
 			map.svg = d3.select('#map').append('svg')
 	        	.attr('width', width)
 	        	.attr('height', height)
-        		.call(map.zoom);
+        		//.call(map.zoom);
 
 		    map.projection = d3.geo.mercator()
 		        .center([13, 13])
@@ -425,7 +425,7 @@
 			svggradient.append("text")
 				.attr('x', barw+20)
 				.attr('y', 35)
-				.attr('class', 'small')
+				.attr('class', 'small text-end')
 				.text( map.displacedRange[map.displacedRange.length-1] );
 
 
