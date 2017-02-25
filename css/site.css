@@ -160,3 +160,27 @@ p{
   text-align: center;
   font-size: 10px;
 }
+#fundingChart{
+	height: 150px;
+}
+
+@media (min-width: 768px){
+	.keyfigures{
+		margin-top: 0px;
+	}
+	#timeline{
+		margin-top: 10px;
+	}
+	#legendlayer .header{
+		margin-top: 0;
+	}
+}
+
+@media (min-width: 992px){
+	.keyfigure{
+		margin-bottom: 20px;
+	}
+	#legendlayer .header{
+		margin-top: 20px;
+	}
+}

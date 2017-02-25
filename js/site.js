@@ -44,6 +44,17 @@ var date_sort = function (d1, d2) {
 
 function generateMap(incidents,refugees,accessible,adm1,adm2,countries,countrieslabel){
     map.init(adm1,adm2,countries,incidents,refugees, accessible, countrieslabel);
+
+    //resize charts for small viewports once map height has been determined
+    if ($(window).width()<992 && $(window).width()>768){
+        $('#foodinsecureChart').data('c3-chart').resize({height:getChartHeight()});
+        $('#incidentChart').data('c3-chart').resize({height:getChartHeight()});
+        $('#displacedChart').data('c3-chart').resize({height:getChartHeight()});
+    }
+    //show charts
+    $('#foodinsecureChart').show();
+    $('#incidentChart').show();
+    $('#displacedChart').show();
 }
 
 function generateKeyStats(data){
@@ -161,6 +172,15 @@ function generateFundingGraph(data){
         return b['#meta+requirement'] - a['#meta+requirement'];
     });
 
+    //determine height of chart based on viewport
+    var h = 150;
+    if (($(window).width() < 992 && $(window).width() > 768)){
+        h = $('#fundingChart').parent().parent().height()-160;
+    }
+    else if ($(window).width() >= 992){
+        h = $('#fundingChart').parent().parent().height()-50;
+    }
+
     var locationArr = ['x'];
     var fundedArr = ['Funded'];
     var unmetArr = ['Unmet'];
@@ -268,6 +288,7 @@ function generateFoodInsecureGraph(data){
         legend: { hide: true }
     });
     $('#foodinsecureChart').data('c3-chart', chart);
+    $('#foodinsecureChart').hide();
 }
 
 function generateIADGraph(data){
@@ -292,7 +313,6 @@ function generateIADGraph(data){
             axes: { Deaths: 'y2' },
             types: { Incidents: 'bar' }
         },
-        //bar: { width: 7},
         axis: {
             x: {
                 type: 'timeseries',
@@ -324,6 +344,7 @@ function generateIADGraph(data){
         }
     });
     $('#incidentChart').data('c3-chart', chart);
+    $('#incidentChart').hide();
 }
 
 function generateDisplacedGraph(data){
@@ -375,8 +396,15 @@ function generateDisplacedGraph(data){
         legend: { hide: true }
     });
     $('#displacedChart').data('c3-chart', chart);
+    $('#displacedChart').hide();
 }
 
+function getChartHeight(){
+     //determine height of dynamic charts based on viewports
+    var mainvizH = $('#mainviz > div:first-child').height();
+    var chartHeight = Math.round(mainvizH/3 - 40);
+    return chartHeight;
+}
 
 var numFormat = function(d){return d3.format('.3s')(d).replace('G','B')};
 var dateFormat = d3.time.format("%d %b %Y");

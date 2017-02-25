@@ -26,11 +26,11 @@
     <body>
         <div class="container">
             <div class="row">
-                <div class="col-md-3">
+                <div class="col-md-3 col-sm-12">
                     <h4 class="header">Background</h4>
                     <p><b>The complex emergency in the Lake Chad basin is affecting some 17 million people in Nigeria, Cameroon, Chad and Niger.</b> It has destroyed lives and livelihoods and forced millions to flee their homes. The majority of the displaced are sheltered by communities who are among the poorest in the world. Across the region, one in three families is food insecure, and malnutrition rates have reached critical levels. One in every two people needs urgent humanitarian assistance.</p>
                 </div>
-                <div class="col-md-5 keyfigures">
+                <div class="col-md-5 col-sm-6 keyfigures">
                     <h4 class="header">Most recent key figures</h4>
                     <div class="row">
                         <div class="col-md-4 col-xs-6 keyfigure" data-figure="affected">
@@ -55,21 +55,21 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-4 col-sm-6">
                     <h4 id="fundingChartHeader" class="header"></h4>
                     <div id="fundingChart"></div>
                 </div>
             </div>
             <hr>
             <div id="mainviz" class="row">
-                <div class="col-md-8">
+                <div class="col-md-8 col-sm-6">
                     <div id="controlslayer" class="row">
                         <div class="col-md-4 topmargin"><p>Use the time slider to see how the crisis changed over time</p><button id="animateBtn" class="btn btn-default topmargin">Animate map</button></div>
                         <div class="col-md-8">
                             <div id="timeline" class="pull-left"></div>
                         </div>
                     </div>
-                    <div class="row">
+                    <div id="legendlayer" class="row">
                         <div class="col-md-4">
                             <h3 class="header">Map Legend</h3>
                             <div id="maplegend"></div>
@@ -79,15 +79,21 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <h3 class="header">Incidents and Deaths</h3>
-                    <div id="incidentChart" class="chart"></div>
-
-                    <h3 class="header">Displacement trend</h3>
-                    <div id="displacedChart" class="chart"></div>
-
-                    <h3 class="header">Food Insecure</h3>
-                    <div id="foodinsecureChart" class="chart"></div>
+                <div class="col-md-4 col-sm-6">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h3 class="header">Incidents and Deaths</h3>
+                            <div id="incidentChart" class="chart"></div>
+                        </div>
+                        <div class="col-md-12">
+                            <h3 class="header">Displacement trend</h3>
+                            <div id="displacedChart" class="chart"></div>
+                        </div>
+                        <div class="col-md-12">
+                            <h3 class="header">Food Insecure</h3>
+                            <div id="foodinsecureChart" class="chart"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
