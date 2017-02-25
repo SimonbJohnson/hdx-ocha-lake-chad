@@ -44,6 +44,17 @@ var date_sort = function (d1, d2) {
 
 function generateMap(incidents,refugees,accessible,adm1,adm2,countries,countrieslabel){
     map.init(adm1,adm2,countries,incidents,refugees, accessible, countrieslabel);
+
+    //resize charts for small viewports once map height has been determined
+    if ($(window).width()<992 && $(window).width()>768){
+        $('#foodinsecureChart').data('c3-chart').resize({height:getChartHeight()});
+        $('#incidentChart').data('c3-chart').resize({height:getChartHeight()});
+        $('#displacedChart').data('c3-chart').resize({height:getChartHeight()});
+    }
+    //show charts
+    $('#foodinsecureChart').show();
+    $('#incidentChart').show();
+    $('#displacedChart').show();
 }
 
 function generateKeyStats(data){
@@ -138,11 +149,12 @@ function generateKeyStats(data){
             str += countryNameMap[countryArr[j].id] + ': ' + numFormat(countryArr[j][figure]) + '<br>';
         }
 
-        var l = $(e)[0].offsetLeft;
+        var leftPos = $(e)[0].offsetLeft;
+        var topPos = $(e)[0].offsetTop;
         $(e).find('span, div').on('mouseover', function(e) {  
             keytip
                 .classed('hidden', false)
-                .attr('style', 'left:'+l+'px;top:'+e.pageY+'px')
+                .attr('style', 'left:'+leftPos+'px;top:'+(topPos+70)+'px')
                 .html(str)
         })
         $(e).find('span, div').on('mouseout',  function() {
@@ -161,6 +173,15 @@ function generateFundingGraph(data){
         return b['#meta+requirement'] - a['#meta+requirement'];
     });
 
+    //determine height of chart based on viewport
+    var h = 150;
+    if (($(window).width() < 992 && $(window).width() > 768)){
+        h = $('#fundingChart').parent().parent().height()-160;
+    }
+    else if ($(window).width() >= 992){
+        h = $('#fundingChart').parent().parent().height()-50;
+    }
+
     var locationArr = ['x'];
     var fundedArr = ['Funded'];
     var unmetArr = ['Unmet'];
@@ -169,7 +190,16 @@ function generateFundingGraph(data){
         fundedArr.push(fundingData[i]['#meta+funding']);
         unmetArr.push(fundingData[i]['#meta+requirement']-fundingData[i]['#meta+funding']);
     }
-
+    
+    //determine height of chart based on viewport
+    var h = 150;
+    if ($(window).width()>768 && $(window).width()<992){
+        h = $('#fundingChart').parent().parent().height() - 160;
+    }
+    else if ($(window).width()>=992){
+        h = $('#fundingChart').parent().parent().height() - 50;
+    }
+    
     $('#fundingChartHeader').html('Requirement for ' + maxDate.getFullYear() + ' (in US $)');
     var chart = c3.generate({
         bindto: '#fundingChart',
@@ -179,7 +209,7 @@ function generateFundingGraph(data){
             bottom: 0,
             left: 60
         },
-        size: { height: 150 },
+        size: { height: h },
         color: {
           pattern: ['#0066b9','#FF9B00']
         },
@@ -196,9 +226,6 @@ function generateFundingGraph(data){
             groups: [ 
                 ['Funded', 'Unmet'] 
             ]
-        },
-        bar: { 
-            width: 20 
         },
         axis: {
             rotated: true,
@@ -248,7 +275,7 @@ function generateFoodInsecureGraph(data){
                 localtime: false,
                 tick: {
                     centered: true,
-                    culling: { max: 5 },
+                    culling: { max: 4 },
                     format: '%b %Y',
                     outer: false
                 }
@@ -268,6 +295,7 @@ function generateFoodInsecureGraph(data){
         legend: { hide: true }
     });
     $('#foodinsecureChart').data('c3-chart', chart);
+    $('#foodinsecureChart').hide();
 }
 
 function generateIADGraph(data){
@@ -292,7 +320,6 @@ function generateIADGraph(data){
             axes: { Deaths: 'y2' },
             types: { Incidents: 'bar' }
         },
-        //bar: { width: 7},
         axis: {
             x: {
                 type: 'timeseries',
@@ -324,6 +351,7 @@ function generateIADGraph(data){
         }
     });
     $('#incidentChart').data('c3-chart', chart);
+    $('#incidentChart').hide();
 }
 
 function generateDisplacedGraph(data){
@@ -375,8 +403,15 @@ function generateDisplacedGraph(data){
         legend: { hide: true }
     });
     $('#displacedChart').data('c3-chart', chart);
+    $('#displacedChart').hide();
 }
 
+function getChartHeight(){
+     //determine height of dynamic charts based on viewports
+    var mainvizH = $('#mainviz > div:first-child').height();
+    var chartHeight = Math.round(mainvizH/3 - 40);
+    return chartHeight;
+}
 
 var numFormat = function(d){return d3.format('.3s')(d).replace('G','B')};
 var dateFormat = d3.time.format("%d %b %Y");

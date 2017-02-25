@@ -64,7 +64,7 @@
 			map.svg = d3.select('#map').append('svg')
 	        	.attr('width', width)
 	        	.attr('height', height)
-        		.call(map.zoom);
+        		//.call(map.zoom);
 
 		    map.projection = d3.geo.mercator()
 		        .center([13, 13])
@@ -385,8 +385,10 @@
 			 	}
 			});
 
+			var svggradient = d3.select('#maplegend').append('svg')
+				.attr('height', 80)
+				.attr('width', $('#maplegend').width());
 
-			var svggradient = d3.select('#maplegend').append('svg');
 			var defs = svggradient.append("defs");
 			var linearGradient = defs.append("linearGradient")
 			    .attr("id", "linear-gradient");
@@ -406,9 +408,10 @@
 			    .attr("offset", function(d,i) { return i/(colorScale.range().length-1); })
 			    .attr("stop-color", function(d) { return d; });
 
-			svggradient.append("rect")
+			var bar = svggradient.append("rect")
 				.attr("width", $('#maplegend').width()-30)
 				.attr("height", 20)
+				.attr("class", "gradbar")
 				.attr('x', 20)
 				.style("fill", "url(#linear-gradient)");
 
@@ -418,10 +421,11 @@
 				.attr('class', 'small')
 				.text( map.displacedRange[0] );
 
+			var barw = $('.gradbar')[0].getBoundingClientRect().width;
 			svggradient.append("text")
-				.attr('x', $('#maplegend').width()-50)
+				.attr('x', barw+20)
 				.attr('y', 35)
-				.attr('class', 'small')
+				.attr('class', 'small text-end')
 				.text( map.displacedRange[map.displacedRange.length-1] );
 
 

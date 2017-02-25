@@ -11,6 +11,9 @@ h4{
 .small{
 	font-size: 10px;
 }
+.text-end{
+	text-anchor: end;
+}
 
 .header{
 	border-bottom: 1px solid #999;
@@ -30,6 +33,9 @@ p{
   transform: translate(-3px, 0);
 }
 
+.keyfigures{
+	margin-top: 30px;
+}
 .keyfigures h4{
 	min-height: 26px;
 }
@@ -82,19 +88,19 @@ p{
     background-color: #FFF;
     border: 1px solid #CCC;
     box-shadow: 0 0 5px rgba(0,0,0,0.2);
-    bottom: 10px;
+    top: 25px;
     cursor: pointer;
     font-size: 20px;
     font-weight: 700;
-    height: 25px;
-    line-height: 16px;
+    height: 30px;
+    line-height: 22px;
     position: absolute;
     left: 25px;
     text-align: center;
-    width: 25px;
+    width: 30px;
 }
-#map #zoom-in{
-    bottom: 34px;
+#map #zoom-out{
+    top: 54px;
 }
 
 /* map tooltips */
@@ -135,7 +141,8 @@ p{
 
 /* timeline slider styles */
 #timeline{
-	width: 365px;
+	width: 100%;
+	/*width: 365px;*/
 }
 .axis {
   fill: #999;
@@ -160,3 +167,28 @@ p{
   text-align: center;
   font-size: 10px;
 }
+#fundingChart{
+	height: 150px;
+}
+
+@media (min-width: 768px){
+	.keyfigures{
+		margin-top: 0px;
+	}
+	#timeline{
+		margin-top: 10px;
+	}
+	#legendlayer .header{
+		margin-top: 0;
+	}
+}
+
+@media (min-width: 992px){
+	.keyfigure{
+		margin-bottom: 20px;
+	}
+	#legendlayer .header{
+		margin-top: 20px;
+	}
+}
+
