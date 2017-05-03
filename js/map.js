@@ -489,9 +489,10 @@
 		updateIncidents: function(date){
 			map.incidentsDim.filter();
 
-			var datefilter = new Date(date.getFullYear(),date.getMonth(),date.getDate());
+			var datefilterStart = new Date(date.getFullYear(),date.getMonth(),1);
+			var datefilterEnd = new Date(date.getFullYear(),date.getMonth(),31);
 
-			var data = map.incidentsDim.filter(datefilter).top(Infinity);
+			var data = map.incidentsDim.filter([datefilterStart,datefilterEnd]).top(Infinity);
 		
 			d3.select('#incidentslayer').selectAll('.incidents').remove();
 			
