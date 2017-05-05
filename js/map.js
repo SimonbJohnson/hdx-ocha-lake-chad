@@ -49,6 +49,7 @@
 			};
 
 			map.dates = map.displacedDim.group().top(Infinity).map(function(d){return d.key}).sort(date_sort);
+			//console.log(map.dates);
 
 			//accessibility data with date filter
 			map.access = crossfilter(accessible);
@@ -177,7 +178,6 @@
 				//reposition slider handle
 				map.handle.attr('transform', 'translate(' + map.timeScale(value) + ',0)');
 				map.handle.select('text').text(map.formatDate(value));
-
 				map.update(value);
 			}
 			else{
@@ -291,9 +291,9 @@
 			}
 			map.handle.attr('transform', 'translate(' + map.timeScale(value) + ',0)');
 			map.handle.select('text').text(map.formatDate(value));
-			map.update(value);
 
 			map.snapshotID = map.getSnapshotID(value);
+			map.update(value);
 		},
 
 		nearestValue: function(date){
@@ -488,9 +488,11 @@
 		updateIncidents: function(date){
 			map.incidentsDim.filter();
 
-			var datefilter = new Date(date.getFullYear(),date.getMonth(),1);
-
-			var data = map.incidentsDim.filter(datefilter).top(Infinity);
+			var today = new Date();
+			var nextSnapshotID = map.snapshotID+1;
+			var datefilterStart = date;
+			var datefilterEnd = (nextSnapshotID < map.dates.length) ? map.dates[nextSnapshotID] : today;
+			var data = map.incidentsDim.filter([datefilterStart,datefilterEnd]).top(Infinity);
 		
 			d3.select('#incidentslayer').selectAll('.incidents').remove();
 			
@@ -591,8 +593,8 @@
     		//map tooltips
 		    var maptip = d3.select('#map').append('div').attr('class', 'd3-tip map-tip hidden');
 			data.forEach(function(d){
-				if(d.value>0){
-					d3.select('#'+d.key).attr('fill',function(){
+			 	if (d.value>0 && d.key!=''){
+			 		d3.select('#'+d.key).attr('fill',function(){
 						return color(d.value);
 					})
 					.on('mousemove', function(){
@@ -601,7 +603,7 @@
 			        .on('mouseout',  function() {
 		            map.hideMapTooltip(maptip);
 			        }); 
-				}
+			 	}
 			});
 		},
 
