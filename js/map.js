@@ -179,6 +179,7 @@
 				map.handle.attr('transform', 'translate(' + map.timeScale(value) + ',0)');
 				map.handle.select('text').text(map.formatDate(value));
 
+				console.log('animate', map.snapshotID);
 				map.update(value);
 			}
 			else{
@@ -292,9 +293,9 @@
 			}
 			map.handle.attr('transform', 'translate(' + map.timeScale(value) + ',0)');
 			map.handle.select('text').text(map.formatDate(value));
-			map.update(value);
 
 			map.snapshotID = map.getSnapshotID(value);
+			map.update(value);
 		},
 
 		nearestValue: function(date){
@@ -489,8 +490,12 @@
 		updateIncidents: function(date){
 			map.incidentsDim.filter();
 
-			var datefilterStart = new Date(date.getFullYear(),date.getMonth(),1);
-			var datefilterEnd = new Date(date.getFullYear(),date.getMonth(),31);
+			var today = new Date();
+			var nextSnapshotID = map.snapshotID+1;
+			var datefilterStart = date;
+			var datefilterEnd = (nextSnapshotID < map.dates.length) ? map.dates[nextSnapshotID] : today;
+
+			console.log(datefilterStart, datefilterEnd);
 
 			var data = map.incidentsDim.filter([datefilterStart,datefilterEnd]).top(Infinity);
 		
