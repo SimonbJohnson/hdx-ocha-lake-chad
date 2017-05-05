@@ -178,8 +178,6 @@
 				//reposition slider handle
 				map.handle.attr('transform', 'translate(' + map.timeScale(value) + ',0)');
 				map.handle.select('text').text(map.formatDate(value));
-
-				console.log('animate', map.snapshotID);
 				map.update(value);
 			}
 			else{
@@ -494,9 +492,6 @@
 			var nextSnapshotID = map.snapshotID+1;
 			var datefilterStart = date;
 			var datefilterEnd = (nextSnapshotID < map.dates.length) ? map.dates[nextSnapshotID] : today;
-
-			console.log(datefilterStart, datefilterEnd);
-
 			var data = map.incidentsDim.filter([datefilterStart,datefilterEnd]).top(Infinity);
 		
 			d3.select('#incidentslayer').selectAll('.incidents').remove();
