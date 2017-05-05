@@ -30,9 +30,14 @@ p{
 }
 
 .c3-texts-Unmet text {
-  transform: translate(-3px, 0);
+  	transform: translate(-3px, 0);
 }
-
+.c3-target-Funded text {
+	transform: translateY(-6px);
+}
+.c3-target-Unmet text {
+	transform: translate(-3px, 6px);
+}
 .keyfigures{
 	margin-top: 30px;
 }
@@ -43,8 +48,8 @@ p{
 	min-height: auto;
 }
 .keyfigures .d3-tip{
-  position: absolute;
-  z-index: 1000;
+  	position: absolute;
+  	z-index: 1000;
 }
 .keyfigures .d3-tip h4{
 	margin: 0;
